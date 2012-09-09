@@ -422,8 +422,7 @@ public class BillingController {
 			if (p.notificationId != null && automaticConfirmations.contains(p.productId)) {
 				confirmations.add(p.notificationId);
 			} else {
-				// TODO: Discriminate between purchases, cancellations and
-				// refunds.
+				// TODO: Discriminate between purchases, cancellations and refunds.
 				addManualConfirmation(p.productId, p.notificationId);
 			}
 			storeTransaction(context, p);

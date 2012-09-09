@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="libs">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/AndroidBillingLibrary/libs" />
+      <root url="file://$PROJECT_DIR$/AndroidBillingLibrary/libs" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/AndroidBillingLibrary/libs" recursive="false" />
+  </library>
+</component>
