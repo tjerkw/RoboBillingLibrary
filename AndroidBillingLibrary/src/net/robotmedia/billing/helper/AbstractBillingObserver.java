@@ -20,7 +20,7 @@ import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
-import net.robotmedia.billing.BillingController;
+import net.robotmedia.billing.GoogleBillingController;
 import net.robotmedia.billing.IBillingObserver;
 
 /**
@@ -54,7 +54,7 @@ public abstract class AbstractBillingObserver implements IBillingObserver {
 	 *            a purchase pending intent for the specified item.
 	 */
 	public void onPurchaseIntent(String itemId, PendingIntent purchaseIntent) {
-		BillingController.startPurchaseIntent(activity, purchaseIntent, null);
+		GoogleBillingController.startPurchaseIntent(activity, purchaseIntent, null);
 	}
 
 	public void onTransactionsRestored() {

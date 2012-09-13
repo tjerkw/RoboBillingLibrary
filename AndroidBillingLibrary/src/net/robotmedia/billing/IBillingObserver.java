@@ -28,7 +28,7 @@ public interface IBillingObserver {
 	 *            if true, in-app product billing is supported. If false, in-app
 	 *            product billing is not supported, and neither is subscription
 	 *            billing.
-	 * @see BillingController#checkBillingSupported(android.content.Context)
+	 * @see GoogleBillingController#checkBillingSupported(android.content.Context)
 	 */
 	public void onBillingChecked(boolean supported);
 
@@ -49,7 +49,7 @@ public interface IBillingObserver {
 	 *            id of the item whose purchase was requested.
 	 * @param purchaseIntent
 	 *            a purchase pending intent for the specified item.
-	 * @see BillingController#requestPurchase(android.content.Context, String,
+	 * @see GoogleBillingController#requestPurchase(android.content.Context, String,
 	 *      boolean)
 	 */
 	public void onPurchaseIntent(String itemId, PendingIntent purchaseIntent);

@@ -19,6 +19,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import com.google.inject.Inject;
+import com.robobilling.RoboBillingController;
+import roboguice.RoboGuice;
 
 public class BillingReceiver extends BroadcastReceiver {
 
@@ -33,38 +36,41 @@ public class BillingReceiver extends BroadcastReceiver {
     static final String EXTRA_INAPP_SIGNATURE = "inapp_signature";
     static final String EXTRA_REQUEST_ID = "request_id";
     static final String EXTRA_RESPONSE_CODE = "response_code";
+
+    @Inject private RoboBillingController billingController;
     
 	@Override
     public void onReceive(Context context, Intent intent) {
+        RoboGuice.getInjector(context).injectMembers(this);
+
         final String action = intent.getAction();
-        BillingController.debug("Received " + action);
         
         if (ACTION_PURCHASE_STATE_CHANGED.equals(action)) {
-            purchaseStateChanged(context, intent);
+            purchaseStateChanged(intent);
         } else if (ACTION_NOTIFY.equals(action)) {
-            notify(context, intent);
+            notify(intent);
         } else if (ACTION_RESPONSE_CODE.equals(action)) {
-        	responseCode(context, intent);
+        	responseCode(intent);
         } else {
             Log.w(this.getClass().getSimpleName(), "Unexpected action: " + action);
         }
     }
 
-	private void purchaseStateChanged(Context context, Intent intent) {
+	private void purchaseStateChanged(Intent intent) {
         final String signedData = intent.getStringExtra(EXTRA_INAPP_SIGNED_DATA);
         final String signature = intent.getStringExtra(EXTRA_INAPP_SIGNATURE);
-        BillingController.onPurchaseStateChanged(context, signedData, signature);
+        ((GoogleBillingController) billingController).onPurchaseStateChanged(signedData, signature);
 	}
 	
-	private void notify(Context context, Intent intent) {
+	private void notify(Intent intent) {
         String notifyId = intent.getStringExtra(EXTRA_NOTIFICATION_ID);
-        BillingController.onNotify(context, notifyId);
+        ((GoogleBillingController) billingController).onNotify(notifyId);
 	}
 	
-	private void responseCode(Context context, Intent intent) {
+	private void responseCode(Intent intent) {
         final long requestId = intent.getLongExtra(EXTRA_REQUEST_ID, -1);
         final int responseCode = intent.getIntExtra(EXTRA_RESPONSE_CODE, 0);
-        BillingController.onResponseCode(context, requestId, responseCode);
+        ((GoogleBillingController) billingController).onResponseCode(requestId, responseCode);
 	}
 	
 }

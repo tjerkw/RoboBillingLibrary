@@ -1,4 +1,4 @@
-package com.cperryinc.billing.event;
+package com.robobilling.event;
 
 public class BillingCheckedEvent {
     private boolean isBillingSupported;

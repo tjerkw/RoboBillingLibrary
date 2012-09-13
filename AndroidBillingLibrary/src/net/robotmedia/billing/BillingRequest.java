@@ -16,18 +16,21 @@
 package net.robotmedia.billing;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-
 import com.android.vending.billing.IMarketBillingService;
+import com.google.inject.Inject;
+import com.robobilling.RoboBillingController;
+import roboguice.RoboGuice;
 
 public abstract class BillingRequest {
-	
+
 	public static class CheckBillingSupported extends BillingRequest {
 		
-    	public CheckBillingSupported(String packageName, int startId) {
-    		super(packageName, startId);
+    	public CheckBillingSupported(Context context, String packageName, int startId) {
+    		super(context, packageName, startId);
     	}
 
     	@Override
@@ -38,15 +41,15 @@ public abstract class BillingRequest {
     	@Override
     	protected void processOkResponse(Bundle response) {
     		final boolean supported = this.isSuccess();
-    		BillingController.onBillingChecked(supported);
+            ((GoogleBillingController) billingController).onBillingChecked(supported);
     	}
     	
     }
 	
 	public static class CheckSubscriptionSupported extends BillingRequest {
 		
-	    public CheckSubscriptionSupported(String packageName, int startId) {
-			super(packageName, startId);
+	    public CheckSubscriptionSupported(Context context, String packageName, int startId) {
+			super(context, packageName, startId);
 		}
 	    
 	    @Override
@@ -62,7 +65,7 @@ public abstract class BillingRequest {
     	@Override
     	protected void processOkResponse(Bundle response) {
     		final boolean supported = this.isSuccess();
-    		BillingController.onSubscriptionChecked(supported);
+            ((GoogleBillingController) billingController).onSubscriptionChecked(supported);
     	}
 		
     	@Override
@@ -78,8 +81,8 @@ public abstract class BillingRequest {
     	
     	private static final String KEY_NOTIFY_IDS = "NOTIFY_IDS";
     	
-    	public ConfirmNotifications(String packageName, int startId, String[] notifyIds) {
-    		super(packageName, startId);
+    	public ConfirmNotifications(Context context, String packageName, int startId, String[] notifyIds) {
+    		super(context, packageName, startId);
     		this.notifyIds = notifyIds;
     	}
 
@@ -100,8 +103,8 @@ public abstract class BillingRequest {
     	
     	private static final String KEY_NOTIFY_IDS = "NOTIFY_IDS";
     	
-    	public GetPurchaseInformation(String packageName, int startId, String[] notifyIds) {
-    		super(packageName,startId);
+    	public GetPurchaseInformation(Context context, String packageName, int startId, String[] notifyIds) {
+    		super(context, packageName,startId);
     		this.notifyIds = notifyIds;
     	}
     	
@@ -128,8 +131,8 @@ public abstract class BillingRequest {
     	private static final String KEY_DEVELOPER_PAYLOAD = "DEVELOPER_PAYLOAD";
     	private static final String KEY_PURCHASE_INTENT = "PURCHASE_INTENT";
     	
-    	public RequestPurchase(String packageName, int startId, String itemId, String developerPayload) {
-    		super(packageName, startId);
+    	public RequestPurchase(Context context, String packageName, int startId, String itemId, String developerPayload) {
+    		super(context, packageName, startId);
     		this.itemId = itemId;
     		this.developerPayload = developerPayload;
     	}
@@ -150,21 +153,21 @@ public abstract class BillingRequest {
     	@Override
     	public void onResponseCode(ResponseCode response) {
     		super.onResponseCode(response);
-    		BillingController.onRequestPurchaseResponse(itemId, response);
+            ((GoogleBillingController) billingController).onRequestPurchaseResponse(itemId, response);
     	}
     	
     	@Override
     	protected void processOkResponse(Bundle response) {
     		final PendingIntent purchaseIntent = response.getParcelable(KEY_PURCHASE_INTENT);
-    		BillingController.onPurchaseIntent(itemId, purchaseIntent);
+            ((GoogleBillingController) billingController).onPurchaseIntent(itemId, purchaseIntent);
     	}
     	
     }
     
     public static class RequestSubscription extends RequestPurchase {
 
-    	public RequestSubscription(String packageName, int startId, String itemId, String developerPayload) {
-			super(packageName, startId, itemId, developerPayload);
+    	public RequestSubscription(Context context, String packageName, int startId, String itemId, String developerPayload) {
+			super(context, packageName, startId, itemId, developerPayload);
 		}
 
 		@Override
@@ -203,8 +206,8 @@ public abstract class BillingRequest {
     }
 	public static class RestoreTransactions extends BillingRequest {
     	
-    	public RestoreTransactions(String packageName, int startId) {
-    		super(packageName, startId);
+    	public RestoreTransactions(Context context, String packageName, int startId) {
+    		super(context, packageName, startId);
     	}
     	
     	@Override
@@ -218,7 +221,7 @@ public abstract class BillingRequest {
     	public void onResponseCode(ResponseCode response) {
     		super.onResponseCode(response);
     		if (response == ResponseCode.RESULT_OK) {
-    			BillingController.onTransactionsRestored();
+                ((GoogleBillingController) billingController).onTransactionsRestored();
     		}
     	}
     	
@@ -240,9 +243,12 @@ public abstract class BillingRequest {
 	private int startId;
     private boolean success;
 	private long nonce;
-	public BillingRequest(String packageName,int startId) {		
+    @Inject protected RoboBillingController billingController;
+
+	public BillingRequest(Context context, String packageName,int startId) {
     	this.packageName = packageName;
-    	this.startId=startId;
+    	this.startId = startId;
+        RoboGuice.getInjector(context).injectMembers(this);
     }
     
 	protected void addParams(Bundle request) {

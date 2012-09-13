@@ -1,4 +1,4 @@
-package com.cperryinc.billing.event;
+package com.robobilling.event;
 
 /**
  * No data in this so it's an empty event

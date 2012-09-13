@@ -15,14 +15,6 @@
 
 package net.robotmedia.billing;
 
-import java.util.LinkedList;
-
-import static net.robotmedia.billing.BillingRequest.*;
-
-import net.robotmedia.billing.utils.Compatibility;
-
-import com.android.vending.billing.IMarketBillingService;
-
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -31,6 +23,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import com.android.vending.billing.IMarketBillingService;
+import com.google.inject.Inject;
+import com.robobilling.RoboBillingController;
+import net.robotmedia.billing.utils.Compatibility;
+import roboguice.RoboGuice;
+
+import java.util.LinkedList;
+
+import static net.robotmedia.billing.BillingRequest.*;
 
 public class BillingService extends Service implements ServiceConnection {
 
@@ -46,8 +47,15 @@ public class BillingService extends Service implements ServiceConnection {
 	private static LinkedList<BillingRequest> mPendingRequests = new LinkedList<BillingRequest>();
 
 	private static IMarketBillingService mService;
+    @Inject private RoboBillingController billingController;
 
-	public static void checkBillingSupported(Context context) {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        RoboGuice.getInjector(this).injectMembers(this);
+    }
+
+    public static void checkBillingSupported(Context context) {
 		final Intent intent = createIntent(context, Action.CHECK_BILLING_SUPPORTED);
 		context.startService(intent);
 	}
@@ -115,20 +123,20 @@ public class BillingService extends Service implements ServiceConnection {
 
 	private void checkBillingSupported(int startId) {
 		final String packageName = getPackageName();
-		final CheckBillingSupported request = new CheckBillingSupported(packageName, startId);
+		final CheckBillingSupported request = new CheckBillingSupported(getApplicationContext(), packageName, startId);
 		runRequestOrQueue(request);
 	}
 	
 	private void checkSubscriptionSupported(int startId) {
 		final String packageName = getPackageName();
-		final CheckSubscriptionSupported request = new CheckSubscriptionSupported(packageName, startId);
+		final CheckSubscriptionSupported request = new CheckSubscriptionSupported(getApplicationContext(), packageName, startId);
 		runRequestOrQueue(request);
 	}
 
 	private void confirmNotifications(Intent intent, int startId) {
 		final String packageName = getPackageName();
 		final String[] notifyIds = intent.getStringArrayExtra(EXTRA_NOTIFY_IDS);
-		final ConfirmNotifications request = new ConfirmNotifications(packageName, startId, notifyIds);
+		final ConfirmNotifications request = new ConfirmNotifications(getApplicationContext(), packageName, startId, notifyIds);
 		runRequestOrQueue(request);
 	}
 
@@ -148,7 +156,7 @@ public class BillingService extends Service implements ServiceConnection {
 		final String packageName = getPackageName();
 		final long nonce = intent.getLongExtra(EXTRA_NONCE, 0);
 		final String[] notifyIds = intent.getStringArrayExtra(EXTRA_NOTIFY_IDS);
-		final GetPurchaseInformation request = new GetPurchaseInformation(packageName, startId, notifyIds);
+		final GetPurchaseInformation request = new GetPurchaseInformation(getApplicationContext(), packageName, startId, notifyIds);
 		request.setNonce(nonce);
 		runRequestOrQueue(request);
 	}
@@ -214,7 +222,7 @@ public class BillingService extends Service implements ServiceConnection {
 		final String packageName = getPackageName();
 		final String itemId = intent.getStringExtra(EXTRA_ITEM_ID);
 		final String developerPayload = intent.getStringExtra(EXTRA_DEVELOPER_PAYLOAD);
-		final RequestPurchase request = new RequestPurchase(packageName, startId, itemId, developerPayload);
+		final RequestPurchase request = new RequestPurchase(getApplicationContext(), packageName, startId, itemId, developerPayload);
 		runRequestOrQueue(request);
 	}
 	
@@ -222,14 +230,14 @@ public class BillingService extends Service implements ServiceConnection {
 		final String packageName = getPackageName();
 		final String itemId = intent.getStringExtra(EXTRA_ITEM_ID);
 		final String developerPayload = intent.getStringExtra(EXTRA_DEVELOPER_PAYLOAD);
-		final RequestPurchase request = new RequestSubscription(packageName, startId, itemId, developerPayload);
+		final RequestPurchase request = new RequestSubscription(getApplicationContext(), packageName, startId, itemId, developerPayload);
 		runRequestOrQueue(request);
 	}
 
 	private void restoreTransactions(Intent intent, int startId) {
 		final String packageName = getPackageName();
 		final long nonce = intent.getLongExtra(EXTRA_NONCE, 0);
-		final RestoreTransactions request = new RestoreTransactions(packageName, startId);
+		final RestoreTransactions request = new RestoreTransactions(getApplicationContext(), packageName, startId);
 		request.setNonce(nonce);
 		runRequestOrQueue(request);
 	}
@@ -257,7 +265,7 @@ public class BillingService extends Service implements ServiceConnection {
 	private void runRequest(BillingRequest request) {
 		try {
 			final long requestId = request.run(mService);
-			BillingController.onRequestSent(requestId, request);
+            ((GoogleBillingController) billingController).onRequestSent(requestId, request);
 		} catch (RemoteException e) {
 			Log.w(this.getClass().getSimpleName(), "Remote billing service crashed");
 			// TODO: Retry?

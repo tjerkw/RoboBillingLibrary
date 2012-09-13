@@ -14,11 +14,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import net.robotmedia.billing.BillingController;
+import net.robotmedia.billing.GoogleBillingController;
 import net.robotmedia.billing.BillingRequest.ResponseCode;
 import net.robotmedia.billing.dungeons.redux.R;
 import net.robotmedia.billing.example.auxiliary.CatalogAdapter;
@@ -28,24 +24,22 @@ import net.robotmedia.billing.helper.AbstractBillingObserver;
 import net.robotmedia.billing.model.Transaction;
 import net.robotmedia.billing.model.Transaction.PurchaseState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A sample application based on the original Dungeons to demonstrate how to use
  * BillingController and implement IBillingObserver.
  */
 public class Dungeons extends Activity {
-
+    private static final int DIALOG_BILLING_NOT_SUPPORTED_ID = 2;
 	private static final String TAG = "Dungeons";
 
-	private Button mBuyButton;
-	private Spinner mSelectItemSpinner;
+    private Button mBuyButton;
+    private Spinner mSelectItemSpinner;
 	private ListView mOwnedItemsTable;
-
-	private static final int DIALOG_BILLING_NOT_SUPPORTED_ID = 2;
-
 	private CatalogEntry mSelectedItem;
-
 	private CatalogAdapter mCatalogAdapter;
-
 	private AbstractBillingObserver mBillingObserver;
 
 	private Dialog createDialog(int titleId, int messageId) {
@@ -67,6 +61,8 @@ public class Dungeons extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
 		mBillingObserver = new AbstractBillingObserver(this) {
 
 			public void onBillingChecked(boolean supported) {
@@ -84,15 +80,13 @@ public class Dungeons extends Activity {
 			public void onSubscriptionChecked(boolean supported) {
 				Dungeons.this.onSubscriptionChecked(supported);
 			}
-		
+
 		};
-		
-		setContentView(R.layout.main);
 
 		setupWidgets();
-		BillingController.registerObserver(mBillingObserver);
-		BillingController.checkBillingSupported(this);
-		BillingController.checkSubscriptionSupported(this);
+		GoogleBillingController.registerObserver(mBillingObserver);
+		GoogleBillingController.checkBillingSupported(this);
+		GoogleBillingController.checkSubscriptionSupported(this);
 		updateOwnedItems();
 	}
 
@@ -108,7 +102,7 @@ public class Dungeons extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		BillingController.unregisterObserver(mBillingObserver);
+		GoogleBillingController.unregisterObserver(mBillingObserver);
 		super.onDestroy();
 	}
 
@@ -132,7 +126,7 @@ public class Dungeons extends Activity {
 	 */
 	private void restoreTransactions() {
 		if (!mBillingObserver.isTransactionsRestored()) {
-			BillingController.restoreTransactions(this);
+			GoogleBillingController.restoreTransactions(this);
 			Toast.makeText(this, R.string.restoring_transactions, Toast.LENGTH_LONG).show();
 		}
 	}
@@ -144,9 +138,9 @@ public class Dungeons extends Activity {
 
 			public void onClick(View v) {
 				if (mSelectedItem.managed != Managed.SUBSCRIPTION) {
-					BillingController.requestPurchase(Dungeons.this, mSelectedItem.sku, true /* confirm */, null);
+					GoogleBillingController.requestPurchase(Dungeons.this, mSelectedItem.sku, true /* confirm */, null);
 				} else {
-					BillingController.requestSubscription(Dungeons.this, mSelectedItem.sku, true /* confirm */, null);
+					GoogleBillingController.requestSubscription(Dungeons.this, mSelectedItem.sku, true /* confirm */, null);
 				}
 			}
 		});
@@ -169,7 +163,7 @@ public class Dungeons extends Activity {
 	}
 
 	private void updateOwnedItems() {
-		List<Transaction> transactions = BillingController.getTransactions(this);
+		List<Transaction> transactions = GoogleBillingController.getTransactions(this);
 		final ArrayList<String> ownedItems = new ArrayList<String>();
 		for (Transaction t : transactions) {
 			if (t.purchaseState == PurchaseState.PURCHASED) {

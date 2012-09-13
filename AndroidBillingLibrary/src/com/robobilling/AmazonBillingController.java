@@ -1,4 +1,4 @@
-package com.cperryinc.billing;
+package com.robobilling;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,33 +11,29 @@ import com.amazon.inapp.purchasing.PurchaseUpdatesResponse;
 import com.amazon.inapp.purchasing.PurchasingManager;
 import com.amazon.inapp.purchasing.PurchasingObserver;
 import com.amazon.inapp.purchasing.Receipt;
-import com.cperryinc.billing.event.ItemInfoEvent;
-import com.cperryinc.billing.event.PurchaseStateChangeEvent;
+import com.robobilling.event.ItemInfoEvent;
+import com.robobilling.event.PurchaseStateChangeEvent;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;
-import roboguice.RoboGuice;
 
 /**
- * Amazon flavor of AndroidBilling
- * <p/>
- * TODO: make an interface for this
- * TODO: make a Google flavor
+ * Amazon flavor of AndroidBillingController
  */
 public class AmazonBillingController extends AbstractBillingController {
     private static final String TAG = "AndroidBilling";
     private static final String OFFSET = "offset";
-    @Inject private Bus eventBus;
     private Context context;
+    private Bus eventBus;
 
-    public AmazonBillingController(Context context) {
-        this.context = context.getApplicationContext();
-        RoboGuice.getInjector(this.context).injectMembers(this);
+    @Inject
+    public AmazonBillingController(Context context, Bus eventBus) {
+        super(context);
+        this.context = context;
+        this.eventBus = eventBus;
     }
 
-    /**
-     * Call this in your onStart method in your Activity/Fragment
-     */
+
     public void onStart() {
         AmazonPurchaseObserver theObserver = new AmazonPurchaseObserver(context);
         PurchasingManager.registerObserver(theObserver);
@@ -51,8 +47,28 @@ public class AmazonBillingController extends AbstractBillingController {
         PurchasingManager.initiateGetUserIdRequest();
     }
 
-    public void requestPurchase(String sku) {
-        PurchasingManager.initiatePurchaseRequest(sku);
+    @Override
+    public void requestPurchase(String itemId) {
+        PurchasingManager.initiatePurchaseRequest(itemId);
+    }
+
+    @Override
+    public void requestPurchase(String itemId, boolean confirm, String developerPayload) {
+        PurchasingManager.initiatePurchaseRequest(itemId);
+    }
+
+    @Override
+    public void requestSubscription(String itemId) {
+        PurchasingManager.initiatePurchaseRequest(itemId);
+    }
+
+    @Override
+    public void requestSubscription(String itemId, boolean confirm, String developerPayload) {
+        PurchasingManager.initiatePurchaseRequest(itemId);
+    }
+
+    @Override
+    public void restoreTransactions() {
     }
 
     private class AmazonPurchaseObserver extends PurchasingObserver {
@@ -153,7 +169,7 @@ public class AmazonBillingController extends AbstractBillingController {
                 final String userId = getUserIdResponse.getUserId();
 
                 // Each UserID has their own shared preferences file, and we'll load that file when a new user logs in.
-                BillingApplication.setCurrentUser(userId);
+                RoboBillingApplication.setCurrentUser(userId);
                 return true;
             } else {
                 Log.v(TAG, "onGetUserIdResponse: Unable to get user ID.");
@@ -169,7 +185,7 @@ public class AmazonBillingController extends AbstractBillingController {
             super.onPostExecute(result);
             if (result) {
                 PurchasingManager.initiatePurchaseUpdatesRequest(Offset.fromString(context
-                        .getSharedPreferences(BillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
+                        .getSharedPreferences(RoboBillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
                         .getString(OFFSET, Offset.BEGINNING.toString())));
             }
         }
@@ -184,13 +200,13 @@ public class AmazonBillingController extends AbstractBillingController {
         @Override
         protected Boolean doInBackground(final PurchaseResponse... params) {
             final PurchaseResponse purchaseResponse = params[0];
-            final String userId = BillingApplication.getCurrentUser();
+            final String userId = RoboBillingApplication.getCurrentUser();
 
             if (!purchaseResponse.getUserId().equals(userId)) {
                 // currently logged in user is different than what we have so update the state
-                BillingApplication.setCurrentUser(purchaseResponse.getUserId());
+                RoboBillingApplication.setCurrentUser(purchaseResponse.getUserId());
                 PurchasingManager.initiatePurchaseUpdatesRequest(
-                        Offset.fromString(context.getSharedPreferences(BillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
+                        Offset.fromString(context.getSharedPreferences(RoboBillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
                                 .getString(OFFSET, Offset.BEGINNING.toString())));
             }
 
@@ -200,7 +216,6 @@ public class AmazonBillingController extends AbstractBillingController {
                      * You can verify the receipt and fulfill the purchase on successful responses.
                      */
                     final Receipt receipt = purchaseResponse.getReceipt();
-                    String key = "";
                     switch (receipt.getItemType()) {
                         case CONSUMABLE:
                             // TODO: doesn't do anything yet
@@ -261,7 +276,7 @@ public class AmazonBillingController extends AbstractBillingController {
         @Override
         protected Boolean doInBackground(final PurchaseUpdatesResponse... params) {
             final PurchaseUpdatesResponse purchaseUpdatesResponse = params[0];
-            final String userId = BillingApplication.getCurrentUser();
+            final String userId = RoboBillingApplication.getCurrentUser();
             if (!purchaseUpdatesResponse.getUserId().equals(userId)) {
                 return false;
             }

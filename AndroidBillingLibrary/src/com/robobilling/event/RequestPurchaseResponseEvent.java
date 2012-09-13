@@ -1,6 +1,6 @@
-package com.cperryinc.billing.event;
+package com.robobilling.event;
 
-import static net.robotmedia.billing.request.AbstractGoogleBillingRequest.ResponseCode;
+import static net.robotmedia.billing.BillingRequest.ResponseCode;
 
 public class RequestPurchaseResponseEvent {
     private String itemId;
