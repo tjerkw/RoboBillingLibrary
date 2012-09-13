@@ -1,6 +1,6 @@
-Android Billing Library++
+RoboBillingLibrary
 =========================
 
-I'm extending Android Billing Library to add Amazon in app purchases in one comprehensive library.
+I'm extending AndroidBillingLibrary to add Amazon in app purchases in one comprehensive library.
 
 This is a work in progress, and not ready for production so please don't try to use this yet.
