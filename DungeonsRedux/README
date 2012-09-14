@@ -1,12 +1,12 @@
-Dungeons Redux is a sample app that shows how to use the Android Billing Library by Robot Media. 
+Dungeons Redux is a sample app that shows how to use the RoboBillingLibrary by Christopher Perry.
 It is a simplified version of the Dungeons in-app billing sample app provided by Google.
 
 Dungeons Redux does not intend to be an example of how to use in-app billing in general, just 
-Android Billing Library.
+RoboBillingLibrary.
 
--------------------------------------
-Configuring the sample application
--------------------------------------
+---------------------------------------------------------
+Configuring the sample application for Google billing
+---------------------------------------------------------
 
 Before you can run the sample application, you need to add your Android Market public key to the
 sample application code. This enables the application to verify the signature of the transaction
@@ -17,7 +17,7 @@ code, do the following:
 2. On the upper left part of the page, under your name, click Edit Profile.
 3. On the Edit Profile page, scroll down to the Licensing & In-app Billing panel.
 4. Copy your public key to the clipboard.
-5. Open src/net/robotmedia/billing/example/Application.java in the editor of your choice.
+5. Open src/com/cperryinc/billing/example/Application.java in the editor of your choice.
 6. Search for the following line:
    return "your public key here";
 7. Replace the string with your public key.
@@ -26,14 +26,37 @@ code, do the following:
 After you add your public key to the Application.java file, you can compile the application as you
 normally would.
 
--------------------------------------
+---------------------------------------------------------
+Configuring the sample application for Amazon billing
+---------------------------------------------------------
+
+Before you can run the sample application, you need to install the Amazon SDK Tester onto your device.
+The SDK Tester is a developer tool that allows users of the Amazon Mobile App SDK to test their
+implementation in a production-like environment before submitting it to Amazon for publication.
+
+The SDK Tester Uses a JavaScript Object Notation (JSON) text file to contain the IAP item information
+used to respond to IAP API calls. This file resides on the device containing the app under test and the
+SDK Tester. Once created, the file needs to reside on the device's file system under the path:
+
+/mnt/sdcard/amazon.sdktester.json
+
+The contents of the file is a list of JSON objects that should have the same properties as the IAP items
+that you entered into the Distribution Portal. This ensures you are testing with the same item attributes
+that will be available in the live environment.
+
+An example amazon.sdktester.json file is provided in this sample application.
+
+For more information see:
+https://developer.amazon.com/sdk/in-app-purchasing/documentation/testing-iap.html
+
+---------------------------------------------------------
 Running the sample application
--------------------------------------
+---------------------------------------------------------
 
 You cannot run the sample application in the emulator. You must load the application onto a device
 to run it.
 
-In-app billing requires version 2.3.0 of the Android Market application. To run the sample
+Google's in-app billing requires version 2.3.0 of the Android Market application. To run the sample
 application you must have this version (or a newer version) installed on your device. You can check
 the version of the Android Market application by doing the following:
 
@@ -43,14 +66,16 @@ the version of the Android Market application by doing the following:
 4. Scroll down and touch the Market application.
 5. The version number appears under Market at the top of the screen.
 
--------------------------------------
+---------------------------------------------------------
 Additional information and resources
--------------------------------------
+---------------------------------------------------------
 
 To learn more about the in-app billing service, see the online documentation:
 
 	http://developer.android.com/guide/market/billing/index.html
+	                        AND
+	https://developer.amazon.com/sdk/in-app-purchasing.html
 
-To learn more about Android Billing Library, see:
+To learn more about RoboBillingLibrary, see:
 
-	https://github.com/robotmedia/AndroidBillingLibrary
+	https://github.com/christopherperry/RoboBillingLibrary
