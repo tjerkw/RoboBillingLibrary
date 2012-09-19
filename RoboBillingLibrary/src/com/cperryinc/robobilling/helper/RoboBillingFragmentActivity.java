@@ -2,7 +2,6 @@ package com.cperryinc.robobilling.helper;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import com.google.inject.Inject;
 import com.cperryinc.robobilling.RoboBillingController;
 import com.cperryinc.robobilling.event.BillingCheckedEvent;
 import com.cperryinc.robobilling.event.ItemInfoEvent;
@@ -11,6 +10,7 @@ import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
 import com.cperryinc.robobilling.event.RequestPurchaseResponseEvent;
 import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
 import com.cperryinc.robobilling.event.TransactionsRestoredEvent;
+import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import roboguice.activity.RoboFragmentActivity;
@@ -20,25 +20,26 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
     @Inject private SharedPreferences preferences;
     @Inject protected RoboBillingController billingController;
     @Inject private Bus eventBus;
+    private boolean hasCheckedBilling;
+    private RoboBillingFragmentActivity.EventSubscriber eventSubscriber;
 
     public abstract void onPurchaseStateChanged(PurchaseStateChangeEvent event);
+
     public abstract void onBillingChecked(boolean supported);
+
+    public abstract void onSubscriptionChecked(boolean supported);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: add a call to see if billing is supported here
-
-        if (!isTransactionsRestored()) {
-            billingController.restoreTransactions();
-        }
+        eventSubscriber = new EventSubscriber();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        eventBus.register(this);
+        eventBus.register(eventSubscriber);
         billingController.onStart();
     }
 
@@ -46,49 +47,62 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
     protected void onResume() {
         super.onResume();
         billingController.onResume();
+
+        if (!hasCheckedBilling) {
+            billingController.checkBillingSupported();
+            billingController.checkSubscriptionSupported();
+            hasCheckedBilling = true;
+        }
+
+        if (!isTransactionsRestored()) {
+            billingController.restoreTransactions();
+        }
     }
 
     @Override
-    protected void onPause() {
+    protected void onStop() {
         super.onPause();
-        eventBus.unregister(this);
+        eventBus.unregister(eventSubscriber);
     }
 
-    @Subscribe
-    public final void onTransactionsRestoredEvent(TransactionsRestoredEvent event) {
-        final SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(KEY_TRANSACTIONS_RESTORED, true);
-        editor.commit();
-    }
+    public class EventSubscriber {
 
-    @Subscribe
-    public final void onPurchaseStateChangedEvent(PurchaseStateChangeEvent event) {
-        onPurchaseStateChanged(event);
-    }
+        @Subscribe
+        public final void onTransactionsRestoredEvent(TransactionsRestoredEvent event) {
+            final SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(KEY_TRANSACTIONS_RESTORED, true);
+            editor.commit();
+        }
 
-    @Subscribe
-    public final void onBillingCheckedEvent(BillingCheckedEvent event) {
-        onBillingChecked(event.isBillingSupported());
-    }
+        @Subscribe
+        public final void onPurchaseStateChangedEvent(PurchaseStateChangeEvent event) {
+            onPurchaseStateChanged(event);
+        }
 
-    @Subscribe
-    public final void onItemInfoEvent(ItemInfoEvent event) {
+        @Subscribe
+        public final void onBillingCheckedEvent(BillingCheckedEvent event) {
+            onBillingChecked(event.isBillingSupported());
+        }
 
-    }
+        @Subscribe
+        public final void onItemInfoEvent(ItemInfoEvent event) {
 
-    @Subscribe
-    public final void onPurchaseIntentEvent(PurchaseIntentEvent event) {
+        }
 
-    }
+        @Subscribe
+        public final void onPurchaseIntentEvent(PurchaseIntentEvent event) {
 
-    @Subscribe
-    public final void onRequestPurchaseResponseEvent(RequestPurchaseResponseEvent event) {
+        }
 
-    }
+        @Subscribe
+        public final void onRequestPurchaseResponseEvent(RequestPurchaseResponseEvent event) {
 
-    @Subscribe
-    public final void onSubscriptionCheckedEvent(SubscriptionCheckedEvent event) {
+        }
 
+        @Subscribe
+        public final void onSubscriptionCheckedEvent(SubscriptionCheckedEvent event) {
+            onSubscriptionChecked(event.isSubscriptionSupported());
+        }
     }
 
     public final void requestPurchase(String itemId) {

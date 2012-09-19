@@ -12,12 +12,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
-import com.cperryinc.robobilling.helper.RoboBillingFragmentActivity;
-import net.robotmedia.billing.dungeons.redux.R;
+import com.cperryinc.billing.dungeons.redux.R;
 import com.cperryinc.billing.example.auxiliary.CatalogAdapter;
 import com.cperryinc.billing.example.auxiliary.CatalogEntry;
 import com.cperryinc.billing.example.auxiliary.CatalogEntry.Managed;
+import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
+import com.cperryinc.robobilling.helper.RoboBillingFragmentActivity;
 import net.robotmedia.billing.model.Transaction;
 import net.robotmedia.billing.model.Transaction.PurchaseState;
 import roboguice.inject.InjectView;
@@ -50,7 +50,7 @@ public class Dungeons extends RoboBillingFragmentActivity {
 
         catalogAdapter = new CatalogAdapter(this, CatalogEntry.CATALOG);
         selectItemSpinner.setAdapter(catalogAdapter);
-        selectItemSpinner.setOnItemSelectedListener(new SelectedItemSaver());
+        selectItemSpinner.setOnItemSelectedListener(new SelectedItemTracker());
 
         updateOwnedItems();
     }
@@ -80,6 +80,10 @@ public class Dungeons extends RoboBillingFragmentActivity {
         }
     }
 
+    @Override
+    public void onSubscriptionChecked(boolean supported) {
+    }
+
     private void updateOwnedItems() {
         List<Transaction> transactions = billingController.getTransactions();
         final ArrayList<String> ownedItems = new ArrayList<String>();
@@ -90,8 +94,7 @@ public class Dungeons extends RoboBillingFragmentActivity {
         }
 
         catalogAdapter.setOwnedItems(ownedItems);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.item_row, R.id.item_name,
-                ownedItems);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.item_row, R.id.item_name, ownedItems);
         ownedItemsTable.setAdapter(adapter);
     }
 
@@ -113,7 +116,7 @@ public class Dungeons extends RoboBillingFragmentActivity {
         }
     }
 
-    private class SelectedItemSaver implements OnItemSelectedListener {
+    private class SelectedItemTracker implements OnItemSelectedListener {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             selectedItem = CatalogEntry.CATALOG[position];

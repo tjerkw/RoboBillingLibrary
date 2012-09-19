@@ -11,11 +11,20 @@ import com.amazon.inapp.purchasing.PurchaseUpdatesResponse;
 import com.amazon.inapp.purchasing.PurchasingManager;
 import com.amazon.inapp.purchasing.PurchasingObserver;
 import com.amazon.inapp.purchasing.Receipt;
+import com.amazon.inapp.purchasing.SubscriptionPeriod;
+import com.cperryinc.robobilling.event.BillingCheckedEvent;
 import com.cperryinc.robobilling.event.ItemInfoEvent;
 import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
+import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;
+import net.robotmedia.billing.model.TransactionManager;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Amazon flavor of AndroidBillingController
@@ -35,12 +44,16 @@ public class AmazonBillingController extends AbstractBillingController {
 
     @Override
     public BillingStatus checkBillingSupported() {
-        return null;
+        // TODO: Is there any way to actually check this for Amazon?
+        eventBus.post(new BillingCheckedEvent(true));
+        return BillingStatus.UNKNOWN;
     }
 
     @Override
     public BillingStatus checkSubscriptionSupported() {
-        return null;
+        // TODO: Is there any way to actually check this for Amazon?
+        eventBus.post(new SubscriptionCheckedEvent(true));
+        return BillingStatus.UNKNOWN;
     }
 
     public void onStart() {
@@ -78,6 +91,7 @@ public class AmazonBillingController extends AbstractBillingController {
     /**
      * Transactions are automatically restored in this implementation
      * when the user id is retrieved
+     *
      * @see {@link GetUserIdAsyncTask}
      */
     @Override
@@ -232,17 +246,13 @@ public class AmazonBillingController extends AbstractBillingController {
                     final Receipt receipt = purchaseResponse.getReceipt();
                     switch (receipt.getItemType()) {
                         case CONSUMABLE:
-                            // TODO: doesn't do anything yet
-                            break;
                         case ENTITLED:
+                        case SUBSCRIPTION:
                             Transaction transaction = new Transaction();
                             transaction.orderId = receipt.getPurchaseToken();
                             transaction.productId = receipt.getSku();
                             transaction.purchaseState = Transaction.PurchaseState.PURCHASED;
                             storeTransaction(context, transaction);
-                            break;
-                        case SUBSCRIPTION:
-                            // TODO: doesn't do anything yet
                             break;
                     }
 
@@ -294,17 +304,25 @@ public class AmazonBillingController extends AbstractBillingController {
             if (!purchaseUpdatesResponse.getUserId().equals(userId)) {
                 return false;
             }
-                /*
-                 * If the customer for some reason had items revoked, the skus for these items will be contained in the
-                 * revoked skus set.
-                 */
-            for (final String sku : purchaseUpdatesResponse.getRevokedSkus()) {
+
+            /*
+             * If the customer for some reason had items revoked, the skus for these items will be contained in the
+             * revoked skus set.
+             */
+            Set<String> revokedSkus = purchaseUpdatesResponse.getRevokedSkus();
+            String[] obfuscatedSkus = new String[revokedSkus.size()];
+            int i = 0;
+            for (final String sku : revokedSkus) {
                 Log.v(TAG, "Revoked Sku:" + sku);
-                // TODO: remove items
+                obfuscatedSkus[i] = obfuscate(context, sku);
+                i++;
             }
+            TransactionManager.removeTransactions(context, obfuscatedSkus);
 
             switch (purchaseUpdatesResponse.getPurchaseUpdatesRequestStatus()) {
                 case SUCCESSFUL:
+                    SubscriptionPeriod latestSubscriptionPeriod = null;
+                    final Map<SubscriptionPeriod, String> currentSubscriptionPeriods = new HashMap<SubscriptionPeriod, String>();
                     for (final Receipt receipt : purchaseUpdatesResponse.getReceipts()) {
                         switch (receipt.getItemType()) {
                             case ENTITLED:
@@ -317,10 +335,64 @@ public class AmazonBillingController extends AbstractBillingController {
                                 transaction.purchaseState = Transaction.PurchaseState.PURCHASED;
                                 storeTransaction(context, transaction);
                                 break;
+
                             case SUBSCRIPTION:
-                                // TODO: not supported yet
+
+                                /**
+                                 * Purchase Updates for subscriptions can be done in one of two ways:
+                                 *
+                                 * 1. Use the receipts to determine if the user currently has an active subscription
+                                 * 2. Use the receipts to create a subscription history for your customer.
+                                 *
+                                 * This library checks if there is an open subscription the application uses the receipts
+                                 * returned to determine an active subscription. (option 1)
+                                 *
+                                 * Applications that unlock content based on past active subscription periods, should create
+                                 * purchasing history for the customer.
+                                 *
+                                 * For example, if the customer has a magazine subscription for a year,
+                                 * even if they do not have a currently active subscription,
+                                 * they still have access to the magazines from when they were subscribed.
+                                 */
+
+                                final SubscriptionPeriod subscriptionPeriod = receipt.getSubscriptionPeriod();
+                                final String subscriptionSku = receipt.getSku();
+                                final Date startDate = subscriptionPeriod.getStartDate();
+
+                                /**
+                                 * Keep track of the receipt that has the most current start date.
+                                 * Store a container of duplicate subscription periods.
+                                 * If there is a duplicate, the duplicate is added to the list of current subscription periods.
+                                 */
+
+                                if (latestSubscriptionPeriod == null || startDate.after(latestSubscriptionPeriod.getStartDate())) {
+                                    currentSubscriptionPeriods.clear();
+                                    latestSubscriptionPeriod = subscriptionPeriod;
+                                    currentSubscriptionPeriods.put(latestSubscriptionPeriod, subscriptionSku);
+                                } else if (startDate.equals(latestSubscriptionPeriod.getStartDate())) {
+                                    currentSubscriptionPeriods.put(receipt.getSubscriptionPeriod(), subscriptionSku);
+                                }
+
                                 break;
                         }
+
+                        /**
+                         * Check the latest subscription periods once all receipts have been read, if there is a subscription
+                         * with an existing end date, then the subscription is not active, so we remove the transaction
+                         */
+
+                        if (latestSubscriptionPeriod != null) {
+                            for (Map.Entry<SubscriptionPeriod, String> subscriptionPeriodEntry : currentSubscriptionPeriods.entrySet()) {
+                                if (subscriptionPeriodEntry.getKey().getEndDate() != null) {
+                                    final String sku = subscriptionPeriodEntry.getValue();
+                                    String obfuscatedSku = obfuscate(context, sku);
+                                    TransactionManager.removeTransactions(context, new String[] {obfuscatedSku});
+                                    break;
+                                }
+                            }
+
+                        }
+
                     }
                     return true;
                 case FAILED:

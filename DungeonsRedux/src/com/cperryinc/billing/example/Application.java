@@ -6,7 +6,7 @@ public class Application extends RoboBillingApplication {
 
     @Override
     public BillingMode getBillingMode() {
-        return BillingMode.GOOGLE;
+        return BillingMode.AMAZON;
     }
 
     @Override

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           android:versionCode="1" android:versionName="1.0"
-          package="net.robotmedia.billing.dungeons.redux">
+          package="com.cperryinc.billing.dungeons.redux">
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="16"/>
 
     <!-- Add this permission to your manifest for Google billing -->

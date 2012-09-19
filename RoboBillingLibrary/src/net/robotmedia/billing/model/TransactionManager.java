@@ -15,63 +15,69 @@
 
 package net.robotmedia.billing.model;
 
+import android.content.Context;
+import android.database.Cursor;
+import net.robotmedia.billing.model.Transaction.PurchaseState;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import net.robotmedia.billing.model.Transaction.PurchaseState;
-import android.content.Context;
-import android.database.Cursor;
-
 public class TransactionManager {
-	
-	public synchronized static void addTransaction(Context context, Transaction transaction) {
-		BillingDB db = new BillingDB(context);
-		db.insert(transaction);
-		db.close();
-	}
-	
-	public synchronized static boolean isPurchased(Context context, String itemId) {
-		return countPurchases(context, itemId) > 0;
-	}
-	
-	public synchronized static int countPurchases(Context context, String itemId) {
-		BillingDB db = new BillingDB(context);
-		final Cursor c = db.queryTransactions(itemId, PurchaseState.PURCHASED);
-		int count = 0;
-        if (c != null) {
-        	count = c.getCount();
-        	c.close();
-        }
-		db.close();
-		return count;
-	}
-	
-	public synchronized static List<Transaction> getTransactions(Context context) {
-		BillingDB db = new BillingDB(context);
-		final Cursor c = db.queryTransactions();
-		final List<Transaction> transactions = cursorToList(c);
-		db.close();
-		return transactions;
-	}
 
-	private static List<Transaction> cursorToList(final Cursor c) {
-		final List<Transaction> transactions = new ArrayList<Transaction>();
+    public synchronized static void addTransaction(Context context, Transaction transaction) {
+        BillingDB db = new BillingDB(context);
+        db.insert(transaction);
+        db.close();
+    }
+
+    public synchronized static void removeTransactions(Context context, String[] skus) {
+        BillingDB db = new BillingDB(context);
+        db.remove(skus);
+        db.close();
+    }
+
+    public synchronized static boolean isPurchased(Context context, String itemId) {
+        return countPurchases(context, itemId) > 0;
+    }
+
+    public synchronized static int countPurchases(Context context, String itemId) {
+        BillingDB db = new BillingDB(context);
+        final Cursor c = db.queryTransactions(itemId, PurchaseState.PURCHASED);
+        int count = 0;
         if (c != null) {
-        	while (c.moveToNext()) {
-        		final Transaction purchase = BillingDB.createTransaction(c);
-        		transactions.add(purchase);
-        	}
-        	c.close();
+            count = c.getCount();
+            c.close();
         }
-		return transactions;
-	}
-	
-	public synchronized static List<Transaction> getTransactions(Context context, String itemId) {
-		BillingDB db = new BillingDB(context);
-		final Cursor c = db.queryTransactions(itemId);
-		final List<Transaction> transactions = cursorToList(c);
-		db.close();
-		return transactions;
-	}
-	
+        db.close();
+        return count;
+    }
+
+    public synchronized static List<Transaction> getTransactions(Context context) {
+        BillingDB db = new BillingDB(context);
+        final Cursor c = db.queryTransactions();
+        final List<Transaction> transactions = cursorToList(c);
+        db.close();
+        return transactions;
+    }
+
+    private static List<Transaction> cursorToList(final Cursor c) {
+        final List<Transaction> transactions = new ArrayList<Transaction>();
+        if (c != null) {
+            while (c.moveToNext()) {
+                final Transaction purchase = BillingDB.createTransaction(c);
+                transactions.add(purchase);
+            }
+            c.close();
+        }
+        return transactions;
+    }
+
+    public synchronized static List<Transaction> getTransactions(Context context, String itemId) {
+        BillingDB db = new BillingDB(context);
+        final Cursor c = db.queryTransactions(itemId);
+        final List<Transaction> transactions = cursorToList(c);
+        db.close();
+        return transactions;
+    }
+
 }

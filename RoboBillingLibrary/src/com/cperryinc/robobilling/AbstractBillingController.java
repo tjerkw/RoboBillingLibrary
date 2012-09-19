@@ -98,6 +98,14 @@ public abstract class AbstractBillingController implements RoboBillingController
         purchase.developerPayload = Security.obfuscate(context, salt, purchase.developerPayload);
     }
 
+    protected String obfuscate(Context context, String sku) {
+        final byte[] salt = getSalt();
+        if (salt == null) {
+            return null;
+        }
+        return Security.obfuscate(context, salt, sku);
+    }
+
     /**
      * Unobfuscate the specified purchase.
      *

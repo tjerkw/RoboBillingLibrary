@@ -34,8 +34,8 @@ public class BillingDB {
     public static final String COLUMN_DEVELOPER_PAYLOAD = "developerPayload";
 
     private static final String[] TABLE_TRANSACTIONS_COLUMNS = {
-    	COLUMN__ID, COLUMN_PRODUCT_ID, COLUMN_STATE,
-    	COLUMN_PURCHASE_TIME, COLUMN_DEVELOPER_PAYLOAD
+            COLUMN__ID, COLUMN_PRODUCT_ID, COLUMN_STATE,
+            COLUMN_PURCHASE_TIME, COLUMN_DEVELOPER_PAYLOAD
     };
 
     SQLiteDatabase mDb;
@@ -59,30 +59,36 @@ public class BillingDB {
         values.put(COLUMN_DEVELOPER_PAYLOAD, transaction.developerPayload);
         mDb.replace(TABLE_TRANSACTIONS, null /* nullColumnHack */, values);
     }
-    
+
+    public void remove(String[] skus) {
+        for (String sku : skus) {
+            mDb.delete(TABLE_TRANSACTIONS, COLUMN_PRODUCT_ID + "=?", new String[]{sku});
+        }
+    }
+
     public Cursor queryTransactions() {
         return mDb.query(TABLE_TRANSACTIONS, TABLE_TRANSACTIONS_COLUMNS, null,
                 null, null, null, null);
     }
-    
+
     public Cursor queryTransactions(String productId) {
-        return mDb.query(TABLE_TRANSACTIONS, TABLE_TRANSACTIONS_COLUMNS, COLUMN_PRODUCT_ID + " = ?", 
-                new String[] {productId}, null, null, null);
+        return mDb.query(TABLE_TRANSACTIONS, TABLE_TRANSACTIONS_COLUMNS, COLUMN_PRODUCT_ID + " = ?",
+                new String[]{productId}, null, null, null);
     }
-    
+
     public Cursor queryTransactions(String productId, PurchaseState state) {
-        return mDb.query(TABLE_TRANSACTIONS, TABLE_TRANSACTIONS_COLUMNS, COLUMN_PRODUCT_ID + " = ? AND " + COLUMN_STATE + " = ?", 
-                new String[] {productId, String.valueOf(state.ordinal())}, null, null, null);
+        return mDb.query(TABLE_TRANSACTIONS, TABLE_TRANSACTIONS_COLUMNS, COLUMN_PRODUCT_ID + " = ? AND " + COLUMN_STATE + " = ?",
+                new String[]{productId, String.valueOf(state.ordinal())}, null, null, null);
     }
-    
+
     protected static final Transaction createTransaction(Cursor cursor) {
-    	final Transaction purchase = new Transaction();
-    	purchase.orderId = cursor.getString(0);
-    	purchase.productId = cursor.getString(1);
-    	purchase.purchaseState = PurchaseState.valueOf(cursor.getInt(2));
-    	purchase.purchaseTime = cursor.getLong(3);
-    	purchase.developerPayload = cursor.getString(4);
-    	return purchase;
+        final Transaction purchase = new Transaction();
+        purchase.orderId = cursor.getString(0);
+        purchase.productId = cursor.getString(1);
+        purchase.purchaseState = PurchaseState.valueOf(cursor.getInt(2));
+        purchase.purchaseTime = cursor.getLong(3);
+        purchase.developerPayload = cursor.getString(4);
+        return purchase;
     }
 
     private class DatabaseHelper extends SQLiteOpenHelper {
@@ -97,14 +103,15 @@ public class BillingDB {
 
         private void createTransactionsTable(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TABLE_TRANSACTIONS + "(" +
-            		COLUMN__ID + " TEXT PRIMARY KEY, " +
-            		COLUMN_PRODUCT_ID + " INTEGER, " +
-            		COLUMN_STATE + " TEXT, " +
-            		COLUMN_PURCHASE_TIME + " TEXT, " +
-            		COLUMN_DEVELOPER_PAYLOAD + " INTEGER)");
+                    COLUMN__ID + " TEXT PRIMARY KEY, " +
+                    COLUMN_PRODUCT_ID + " INTEGER, " +
+                    COLUMN_STATE + " TEXT, " +
+                    COLUMN_PURCHASE_TIME + " TEXT, " +
+                    COLUMN_DEVELOPER_PAYLOAD + " INTEGER)");
         }
 
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
     }
 }

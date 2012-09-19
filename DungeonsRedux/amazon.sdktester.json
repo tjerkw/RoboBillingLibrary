@@ -1,32 +1,15 @@
 {
 
 
-
-  "com.amazon.buttonclicker.ten_clicks" : {
-
-    "itemType": "CONSUMABLE",
-
-    "price": 0.99,
-
-    "title": "More Clicks!",
-
-    "description": "Click your button ten more times!",
-
-    "smallIconUrl": "http://some/image.jpg"
-
-  },
-
-
-
-  "com.amazon.buttonclicker.blue_button" : {
+  "sword_001" : {
 
     "itemType": "ENTITLED",
 
     "price": 0.99,
 
-    "title": "Blue Button",
+    "title": "Two-handed sword",
 
-    "description": "Button Clicker - Now in Blue!",
+    "description": "A sword so big, it requires two hands!",
 
     "smallIconUrl": "http://some/image.jpg"
 
@@ -34,19 +17,35 @@
 
 
 
-  "com.amazon.buttonclicker.subscription.1mo" : {
+  "potion_001" : {
+
+      "itemType": "CONSUMABLE",
+
+      "price": 0.99,
+
+      "title": "Potions",
+
+      "description": "Potions, potions, potions!",
+
+      "smallIconUrl": "http://some/image.jpg"
+
+    },
+
+
+
+  "subscription_monthly" : {
 
     "itemType" : "SUBSCRIPTION",
 
     "price" : 3.99,
 
-    "title": "Button Clicker",
+    "title": "Subscription monthly",
 
-    "description": "Click your button!",
+    "description": "A monthly subscription!",
 
     "smallIconUrl": "http://some/image.jpg",
 
-    "subscriptionParent": "com.amazon.buttonclicker.subscription"
+    "subscriptionParent": "subscription"
 
   }
 

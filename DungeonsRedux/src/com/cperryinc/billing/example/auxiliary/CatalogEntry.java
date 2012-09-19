@@ -1,19 +1,27 @@
 package com.cperryinc.billing.example.auxiliary;
 
-import net.robotmedia.billing.dungeons.redux.R;
+
+import com.cperryinc.billing.dungeons.redux.R;
 
 public class CatalogEntry {
 	
 	/**
 	 * Each product in the catalog can be MANAGED, UNMANAGED, or SUBSCRIPTION.
-	 * MANAGED means that the product can be purchased only once per user (such
+	 *
+     * MANAGED means that the product can be purchased only once per user (such
 	 * as a new level in a game). The purchase is remembered by Android Market
 	 * and can be restored if this application is uninstalled and then
-	 * re-installed. UNMANAGED is used for products that can be used up and
+	 * re-installed.
+     *
+     * UNMANAGED is used for products that can be used up and
 	 * purchased multiple times (such as poker chips). It is up to the
 	 * application to keep track of UNMANAGED products for the user.
+     *
 	 * SUBSCRIPTION is just like MANAGED except that the user gets charged
 	 * monthly or yearly.
+     *
+     * The analogous product types for Amazon are ENTITLED, CONSUMABLE, or SUBSCRIPTION.
+     * @see {@link /DungeonsRedux/amazon.sdktester.json} for Amazon test values
 	 */
 	public enum Managed {
 		MANAGED, UNMANAGED, SUBSCRIPTION
