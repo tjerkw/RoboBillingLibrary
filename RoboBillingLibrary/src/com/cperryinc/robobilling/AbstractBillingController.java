@@ -7,6 +7,7 @@ import net.robotmedia.billing.model.TransactionManager;
 import net.robotmedia.billing.utils.IConfiguration;
 import net.robotmedia.billing.utils.Security;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractBillingController implements RoboBillingController {
@@ -36,7 +37,7 @@ public abstract class AbstractBillingController implements RoboBillingController
      */
     public List<Transaction> getTransactions() {
         List<Transaction> transactions = TransactionManager.getTransactions(context);
-        unobfuscate(context, transactions);
+        transactions = unobfuscate(context, transactions);
         return transactions;
     }
 
@@ -50,7 +51,7 @@ public abstract class AbstractBillingController implements RoboBillingController
         final byte[] salt = getSalt();
         itemId = salt != null ? Security.obfuscate(context, salt, itemId) : itemId;
         List<Transaction> transactions = TransactionManager.getTransactions(context, itemId);
-        unobfuscate(context, transactions);
+        transactions = unobfuscate(context, transactions);
         return transactions;
     }
 
@@ -74,10 +75,15 @@ public abstract class AbstractBillingController implements RoboBillingController
         TransactionManager.addTransaction(context, t2);
     }
 
-    protected void unobfuscate(Context context, List<Transaction> transactions) {
-        for (Transaction p : transactions) {
-            unobfuscate(context, p);
+    protected List<Transaction> unobfuscate(Context context, List<Transaction> obfuscatedTransactions) {
+        List<Transaction> unobfuscatedTransactions = new ArrayList<Transaction>();
+        for (Transaction p : obfuscatedTransactions) {
+            boolean success = unobfuscate(context, p);
+            if (success) {
+                unobfuscatedTransactions.add(p);
+            }
         }
+        return unobfuscatedTransactions;
     }
 
     /**
@@ -113,14 +119,17 @@ public abstract class AbstractBillingController implements RoboBillingController
      * @param purchase purchase to unobfuscate.
      * @see #obfuscate(Context, Transaction)
      */
-    protected void unobfuscate(Context context, Transaction purchase) {
+    protected boolean unobfuscate(Context context, Transaction purchase) {
         final byte[] salt = getSalt();
         if (salt == null) {
-            return;
+            return false;
         }
         purchase.orderId = Security.unobfuscate(context, salt, purchase.orderId);
         purchase.productId = Security.unobfuscate(context, salt, purchase.productId);
         purchase.developerPayload = Security.unobfuscate(context, salt, purchase.developerPayload);
+
+        // Failure to unobfuscate will return null
+        return purchase.orderId != null;
     }
 
     /**

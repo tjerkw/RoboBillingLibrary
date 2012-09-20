@@ -29,15 +29,15 @@
 
       "smallIconUrl": "http://some/image.jpg"
 
-    },
+   },
 
 
 
-  "subscription_monthly" : {
+  "subscription_type_1.monthly" : {
 
     "itemType" : "SUBSCRIPTION",
 
-    "price" : 3.99,
+    "price" : 0.99,
 
     "title": "Subscription monthly",
 
@@ -45,10 +45,44 @@
 
     "smallIconUrl": "http://some/image.jpg",
 
-    "subscriptionParent": "subscription"
+    "subscriptionParent": "subscription_type_1"
+
+  },
+
+
+
+  "subscription_type_1.yearly" : {
+
+      "itemType" : "SUBSCRIPTION",
+
+      "price" : 10.99,
+
+      "title": "Subscription monthly",
+
+      "description": "A monthly subscription!",
+
+      "smallIconUrl": "http://some/image.jpg",
+
+      "subscriptionParent": "subscription_type_1"
+
+  },
+
+
+
+  "subscription_type_2.monthly" : {
+
+     "itemType" : "SUBSCRIPTION",
+
+     "price" : 3.99,
+
+     "title": "Subscription monthly",
+
+     "description": "A monthly subscription!",
+
+     "smallIconUrl": "http://some/image.jpg",
+
+     "subscriptionParent": "subscription_type_2"
 
   }
-
-
 
 }

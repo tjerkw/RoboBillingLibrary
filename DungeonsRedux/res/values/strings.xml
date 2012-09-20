@@ -31,8 +31,9 @@
 
     <string name="two_handed_sword">Two-handed sword</string>
     <string name="potions">Potions</string>
-    <string name="subscription_monthly">Subscription monthly</string>
-    <string name="subscription_yearly">Subscription yearly</string>
+    <string name="subscription1_monthly">Subscription type 1, monthly</string>
+    <string name="subscription2_monthly">Subscription type 2, monthly</string>
+    <string name="subscription1_yearly">Subscription type 1, yearly</string>
 
     <!-- The following are reserved skus defined by Market for testing. -->
     <string name="android_test_canceled">android.test.canceled</string>

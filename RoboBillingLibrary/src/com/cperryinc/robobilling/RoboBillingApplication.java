@@ -19,7 +19,7 @@ public abstract class RoboBillingApplication extends Application implements ICon
         AMAZON, GOOGLE
     }
 
-    private static String userId;
+    private static String userId = "unknown";
     @Inject private RoboBillingController billingController;
 
     /**
@@ -84,12 +84,10 @@ public abstract class RoboBillingApplication extends Application implements ICon
         billingController.setConfiguration(this);
     }
 
-    // TODO: move this
     public static String getCurrentUser() {
         return RoboBillingApplication.userId;
     }
 
-    // TODO: move this
     public static void setCurrentUser(String userId) {
         RoboBillingApplication.userId = userId;
     }

@@ -46,6 +46,10 @@ that will be available in the live environment.
 
 An example amazon.sdktester.json file is provided in this sample application.
 
+IMPORTANT: In order for your subscriptions to be deleted correctly, you must use the following sku format: 'subscription_type.time_period'
+This is due to the fact that Amazon only sends back the subscription type part and not the entire sku when a subscription
+is cancelled.
+
 For more information see:
 https://developer.amazon.com/sdk/in-app-purchasing/documentation/testing-iap.html
 

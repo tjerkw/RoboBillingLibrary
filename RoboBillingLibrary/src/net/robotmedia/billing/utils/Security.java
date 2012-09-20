@@ -15,14 +15,13 @@
 
 package net.robotmedia.billing.utils;
 
-import java.security.SecureRandom;
-import java.util.HashSet;
-
-import net.robotmedia.billing.utils.AESObfuscator.ValidationException;
-
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
+import net.robotmedia.billing.utils.AESObfuscator.ValidationException;
+
+import java.security.SecureRandom;
+import java.util.HashSet;
 
 public class Security {
 
@@ -49,17 +48,20 @@ public class Security {
 		final AESObfuscator obfuscator = getObfuscator(context, salt);
 		return obfuscator.obfuscate(original);
 	}
-	
-	private static AESObfuscator _obfuscator = null;
-	
+
+    /**
+     * This used to return a singleton, but the salt changes between user login/logouts
+     * requiring a new Obfuscator to be constructed with the new salt.
+     *
+     * @param context
+     * @param salt
+     * @return
+     */
 	private static AESObfuscator getObfuscator(Context context, byte[] salt) {
-		if (_obfuscator == null) {
 			final String installationId = Installation.id(context);
 			final String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 			final String password = installationId + deviceId + context.getPackageName();
-			_obfuscator = new AESObfuscator(salt, password);
-		}
-		return _obfuscator;
+			return new AESObfuscator(salt, password);
 	}
 		
 	public static String unobfuscate(Context context, byte[] salt, String obfuscated) {

@@ -219,6 +219,11 @@ public class AmazonBillingController extends AbstractBillingController {
         }
     }
 
+    private String getSubscriptionParentSku(String fullSku) {
+        String[] strings = fullSku.split("\\.");
+        return strings[0];
+    }
+
     /*
     * Started when the observer receives a Purchase Response
     * Once the AsyncTask returns successfully, the UI is updated.
@@ -244,13 +249,18 @@ public class AmazonBillingController extends AbstractBillingController {
                      * You can verify the receipt and fulfill the purchase on successful responses.
                      */
                     final Receipt receipt = purchaseResponse.getReceipt();
+                    Transaction transaction = new Transaction();
                     switch (receipt.getItemType()) {
                         case CONSUMABLE:
                         case ENTITLED:
-                        case SUBSCRIPTION:
-                            Transaction transaction = new Transaction();
                             transaction.orderId = receipt.getPurchaseToken();
                             transaction.productId = receipt.getSku();
+                            transaction.purchaseState = Transaction.PurchaseState.PURCHASED;
+                            storeTransaction(context, transaction);
+                            break;
+                        case SUBSCRIPTION:
+                            transaction.orderId = receipt.getPurchaseToken();
+                            transaction.productId = getSubscriptionParentSku(receipt.getSku());
                             transaction.purchaseState = Transaction.PurchaseState.PURCHASED;
                             storeTransaction(context, transaction);
                             break;
@@ -386,7 +396,7 @@ public class AmazonBillingController extends AbstractBillingController {
                                 if (subscriptionPeriodEntry.getKey().getEndDate() != null) {
                                     final String sku = subscriptionPeriodEntry.getValue();
                                     String obfuscatedSku = obfuscate(context, sku);
-                                    TransactionManager.removeTransactions(context, new String[] {obfuscatedSku});
+                                    TransactionManager.removeTransactions(context, new String[]{obfuscatedSku});
                                     break;
                                 }
                             }
