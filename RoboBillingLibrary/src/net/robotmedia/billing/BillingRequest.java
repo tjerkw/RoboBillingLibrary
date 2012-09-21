@@ -19,10 +19,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.util.Log;
 import com.android.vending.billing.IMarketBillingService;
-import com.google.inject.Inject;
 import com.cperryinc.robobilling.RoboBillingController;
+import com.cperryinc.robobilling.logging.Logger;
+import com.google.inject.Inject;
 import roboguice.RoboGuice;
 
 public abstract class BillingRequest {
@@ -299,14 +299,16 @@ public abstract class BillingRequest {
         try {
             response = mService.sendBillingRequest(request);        	
         } catch (NullPointerException e) {
-    		Log.e(this.getClass().getSimpleName(), "Known IAB bug. See: http://code.google.com/p/marketbilling/issues/detail?id=25", e);
+    		Logger.e(this.getClass().getSimpleName(), "Known IAB bug. See: http://code.google.com/p/marketbilling/issues/detail?id=25", e);
         	return IGNORE_REQUEST_ID;        	
         }
 
         if (validateResponse(response)) {
+            Logger.v(this.getClass().getSimpleName(), "Response was valid");
         	processOkResponse(response);
         	return response.getLong(KEY_REQUEST_ID, IGNORE_REQUEST_ID);
         } else {
+            Logger.v(this.getClass().getSimpleName(), "Response was NOT valid");
         	return IGNORE_REQUEST_ID;
         }
 	}
@@ -319,7 +321,7 @@ public abstract class BillingRequest {
     	final int responseCode = response.getInt(KEY_RESPONSE_CODE);
     	success = ResponseCode.isResponseOk(responseCode);
     	if (!success) {
-    		Log.w(this.getClass().getSimpleName(), "Error with response code " + ResponseCode.valueOf(responseCode));
+    		Logger.w(this.getClass().getSimpleName(), "Error with response code " + ResponseCode.valueOf(responseCode));
     	}
     	return success;
     }

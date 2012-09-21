@@ -109,8 +109,10 @@ public class Dungeons extends RoboBillingFragmentActivity {
         @Override
         public void onClick(View v) {
             if (selectedItem.managed != Managed.SUBSCRIPTION) {
+                Log.v(TAG, "Requesting purchase for sku: " + selectedItem.sku);
                 requestPurchase(selectedItem.sku);
             } else {
+                Log.v(TAG, "Requesting subscription for sku: " + selectedItem.sku);
                 requestSubscription(selectedItem.sku);
             }
         }

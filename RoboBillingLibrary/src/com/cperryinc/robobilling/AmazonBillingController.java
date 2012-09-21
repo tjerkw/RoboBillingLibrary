@@ -1,8 +1,25 @@
+/*   Copyright 2012 Christopher Perry Inc.
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*/
+
 package com.cperryinc.robobilling;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 import com.amazon.inapp.purchasing.GetUserIdResponse;
 import com.amazon.inapp.purchasing.ItemDataResponse;
 import com.amazon.inapp.purchasing.Offset;
@@ -16,6 +33,7 @@ import com.cperryinc.robobilling.event.BillingCheckedEvent;
 import com.cperryinc.robobilling.event.ItemInfoEvent;
 import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
 import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
+import com.cperryinc.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;
@@ -99,6 +117,16 @@ public class AmazonBillingController extends AbstractBillingController {
         // do nothing
     }
 
+    /**
+     * This is needed in the Google implementation, this version does nothing.
+     * @param activity
+     * @param purchaseIntent purchase intent.
+     * @param intent
+     */
+    @Override
+    public void startPurchaseIntent(Activity activity, PendingIntent purchaseIntent, Intent intent) {
+    }
+
     private class AmazonPurchaseObserver extends PurchasingObserver {
         public AmazonPurchaseObserver(Context context) {
             super(context);
@@ -112,7 +140,7 @@ public class AmazonBillingController extends AbstractBillingController {
          */
         @Override
         public void onSdkAvailable(final boolean isSandboxMode) {
-            Log.v(TAG, "onSdkAvailable received: Response -" + isSandboxMode);
+            Logger.v(TAG, "onSdkAvailable received: Response -" + isSandboxMode);
             PurchasingManager.initiateGetUserIdRequest();
         }
 
@@ -125,9 +153,9 @@ public class AmazonBillingController extends AbstractBillingController {
          */
         @Override
         public void onGetUserIdResponse(final GetUserIdResponse getUserIdResponse) {
-            Log.v(TAG, "onGetUserIdResponse received: Response -" + getUserIdResponse);
-            Log.v(TAG, "RequestId:" + getUserIdResponse.getRequestId());
-            Log.v(TAG, "IdRequestStatus:" + getUserIdResponse.getUserIdRequestStatus());
+            Logger.v(TAG, "onGetUserIdResponse received: Response -" + getUserIdResponse);
+            Logger.v(TAG, "RequestId:" + getUserIdResponse.getRequestId());
+            Logger.v(TAG, "IdRequestStatus:" + getUserIdResponse.getUserIdRequestStatus());
             new GetUserIdAsyncTask().execute(getUserIdResponse);
         }
 
@@ -141,9 +169,9 @@ public class AmazonBillingController extends AbstractBillingController {
          */
         @Override
         public void onItemDataResponse(final ItemDataResponse itemDataResponse) {
-            Log.v(TAG, "onItemDataResponse received");
-            Log.v(TAG, "ItemDataRequestStatus" + itemDataResponse.getItemDataRequestStatus());
-            Log.v(TAG, "ItemDataRequestId" + itemDataResponse.getRequestId());
+            Logger.v(TAG, "onItemDataResponse received");
+            Logger.v(TAG, "ItemDataRequestStatus" + itemDataResponse.getItemDataRequestStatus());
+            Logger.v(TAG, "ItemDataRequestId" + itemDataResponse.getRequestId());
             switch (itemDataResponse.getItemDataRequestStatus()) {
                 case SUCCESSFUL_WITH_UNAVAILABLE_SKUS:
                 case SUCCESSFUL:
@@ -166,8 +194,8 @@ public class AmazonBillingController extends AbstractBillingController {
          */
         @Override
         public void onPurchaseResponse(final PurchaseResponse purchaseResponse) {
-            Log.v(TAG, "onPurchaseResponse received");
-            Log.v(TAG, "PurchaseRequestStatus:" + purchaseResponse.getPurchaseRequestStatus());
+            Logger.v(TAG, "onPurchaseResponse received");
+            Logger.v(TAG, "PurchaseRequestStatus:" + purchaseResponse.getPurchaseRequestStatus());
             new PurchaseAsyncTask().execute(purchaseResponse);
         }
 
@@ -181,9 +209,9 @@ public class AmazonBillingController extends AbstractBillingController {
          */
         @Override
         public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse purchaseUpdatesResponse) {
-            Log.v(TAG, "onPurchaseUpdatesRecived recieved: Response -" + purchaseUpdatesResponse);
-            Log.v(TAG, "PurchaseUpdatesRequestStatus:" + purchaseUpdatesResponse.getPurchaseUpdatesRequestStatus());
-            Log.v(TAG, "RequestID:" + purchaseUpdatesResponse.getRequestId());
+            Logger.v(TAG, "onPurchaseUpdatesRecived recieved: Response -" + purchaseUpdatesResponse);
+            Logger.v(TAG, "PurchaseUpdatesRequestStatus:" + purchaseUpdatesResponse.getPurchaseUpdatesRequestStatus());
+            Logger.v(TAG, "RequestID:" + purchaseUpdatesResponse.getRequestId());
             new PurchaseUpdatesAsyncTask().execute(purchaseUpdatesResponse);
         }
     }
@@ -200,7 +228,7 @@ public class AmazonBillingController extends AbstractBillingController {
                 RoboBillingApplication.setCurrentUser(userId);
                 return true;
             } else {
-                Log.v(TAG, "onGetUserIdResponse: Unable to get user ID.");
+                Logger.v(TAG, "onGetUserIdResponse: Unable to get user ID.");
                 return false;
             }
         }
@@ -278,7 +306,7 @@ public class AmazonBillingController extends AbstractBillingController {
                      * If the purchase failed for some reason, (The customer canceled the order, or some other
                      * extraneous circumstance happens) the application ignores the request and logs the failure.
                      */
-                    Log.v(TAG, "Failed purchase request");
+                    Logger.v(TAG, "Failed purchase request");
                     return false;
                 case INVALID_SKU:
                     /*
@@ -286,7 +314,7 @@ public class AmazonBillingController extends AbstractBillingController {
                      * This can happen when there is a sku mismatch between what is sent from the application and what
                      * currently exists on the dev portal.
                      */
-                    Log.v(TAG, "Invalid Sku for request");
+                    Logger.v(TAG, "Invalid Sku for request");
                     return false;
             }
             return false;
@@ -323,7 +351,7 @@ public class AmazonBillingController extends AbstractBillingController {
             String[] obfuscatedSkus = new String[revokedSkus.size()];
             int i = 0;
             for (final String sku : revokedSkus) {
-                Log.v(TAG, "Revoked Sku:" + sku);
+                Logger.v(TAG, "Revoked Sku:" + sku);
                 obfuscatedSkus[i] = obfuscate(context, sku);
                 i++;
             }

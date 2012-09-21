@@ -16,8 +16,7 @@
 package net.robotmedia.billing.security;
 
 import android.text.TextUtils;
-import android.util.Log;
-import net.robotmedia.billing.GoogleBillingController;
+import com.cperryinc.robobilling.logging.Logger;
 import net.robotmedia.billing.utils.Base64;
 import net.robotmedia.billing.utils.Base64DecoderException;
 import net.robotmedia.billing.utils.IConfiguration;
@@ -35,8 +34,9 @@ public class DefaultSignatureValidator implements ISignatureValidator {
 
 	protected static final String KEY_FACTORY_ALGORITHM = "RSA";
 	protected static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
+    private static final String LOG_TAG = "DefaultSignatureValidator";
 
-	/**
+    /**
 	 * Generates a PublicKey instance from a string containing the
 	 * Base64-encoded public key.
 	 * 
@@ -53,10 +53,10 @@ public class DefaultSignatureValidator implements ISignatureValidator {
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		} catch (InvalidKeySpecException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "Invalid key specification.");
+			Logger.e(LOG_TAG, "Invalid key specification.");
 			throw new IllegalArgumentException(e);
 		} catch (Base64DecoderException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "Base64 decoding failed.");
+			Logger.e(LOG_TAG, "Base64 decoding failed.");
 			throw new IllegalArgumentException(e);
 		}
 	}
@@ -67,39 +67,45 @@ public class DefaultSignatureValidator implements ISignatureValidator {
 		this.configuration = configuration;
 	}
 
-	protected boolean validate(PublicKey publicKey, String signedData, String signature) {
+	private boolean validate(PublicKey publicKey, String signedData, String signature) {
 		Signature sig;
 		try {
 			sig = Signature.getInstance(SIGNATURE_ALGORITHM);
 			sig.initVerify(publicKey);
 			sig.update(signedData.getBytes());
 			if (!sig.verify(Base64.decode(signature))) {
-				Log.e(GoogleBillingController.LOG_TAG, "Signature verification failed.");
+				Logger.e(LOG_TAG, "Signature verification failed.");
 				return false;
 			}
 			return true;
 		} catch (NoSuchAlgorithmException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "NoSuchAlgorithmException");
+			Logger.e(LOG_TAG, "NoSuchAlgorithmException");
 		} catch (InvalidKeyException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "Invalid key specification");
+			Logger.e(LOG_TAG, "Invalid key specification");
 		} catch (SignatureException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "Signature exception");
+			Logger.e(LOG_TAG, "Signature exception");
 		} catch (Base64DecoderException e) {
-			Log.e(GoogleBillingController.LOG_TAG, "Base64 decoding failed");
+			Logger.e(LOG_TAG, "Base64 decoding failed");
 		}
 		return false;
 	}
 
 	public boolean validate(String signedData, String signature) {
-		final String publicKey;
-		if (configuration == null || TextUtils.isEmpty(publicKey = configuration.getPublicKey())) {
-			Log.w(GoogleBillingController.LOG_TAG, "Please set the public key or turn on debug mode");
-			return false;
-		}
+		if (configuration == null) {
+            Logger.w(LOG_TAG, "Please set the configuration or turn on debug mode");
+            return false;
+        }
+
+        final String publicKey;
+        if (TextUtils.isEmpty(publicKey = configuration.getPublicKey())) {
+            Logger.w(LOG_TAG, "Please supply a public key or turn on debug mode");
+        }
+
 		if (signedData == null) {
-			Log.e(GoogleBillingController.LOG_TAG, "Data is null");
+			Logger.e(LOG_TAG, "Data is null");
 			return false;
 		}
+
 		PublicKey key = generatePublicKey(publicKey);
 		return validate(key, signedData, signature);
 	}

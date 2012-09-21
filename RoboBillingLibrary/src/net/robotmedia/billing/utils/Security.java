@@ -17,7 +17,7 @@ package net.robotmedia.billing.utils;
 
 import android.content.Context;
 import android.provider.Settings;
-import android.util.Log;
+import com.cperryinc.robobilling.logging.Logger;
 import net.robotmedia.billing.utils.AESObfuscator.ValidationException;
 
 import java.security.SecureRandom;
@@ -69,7 +69,7 @@ public class Security {
 		try {
 			return obfuscator.unobfuscate(obfuscated);
 		} catch (ValidationException e) {
-			Log.w(TAG, "Invalid obfuscated data or key");
+			Logger.w(TAG, "Invalid obfuscated data or key");
 		}
 		return null;
 	}

@@ -38,8 +38,6 @@
     <orderEntry type="jdk" jdkName="Android 1.6 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="RoboBillingLibrary" />
-    <orderEntry type="module" module-name="RoboBillingLibraryTest" />
-    <orderEntry type="module" module-name="RoboBillingLibraryTest" />
     <orderEntry type="module" module-name="RoboBillingLibrary" />
     <orderEntry type="library" name="libs" level="project" />
   </component>

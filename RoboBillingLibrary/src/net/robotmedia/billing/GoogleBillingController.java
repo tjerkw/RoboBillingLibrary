@@ -21,7 +21,6 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 import com.cperryinc.robobilling.AbstractBillingController;
 import com.cperryinc.robobilling.event.BillingCheckedEvent;
 import com.cperryinc.robobilling.event.PurchaseIntentEvent;
@@ -29,6 +28,7 @@ import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
 import com.cperryinc.robobilling.event.RequestPurchaseResponseEvent;
 import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
 import com.cperryinc.robobilling.event.TransactionsRestoredEvent;
+import com.cperryinc.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;
@@ -36,7 +36,6 @@ import net.robotmedia.billing.model.TransactionManager;
 import net.robotmedia.billing.security.DefaultSignatureValidator;
 import net.robotmedia.billing.security.ISignatureValidator;
 import net.robotmedia.billing.utils.Compatibility;
-import net.robotmedia.billing.utils.IConfiguration;
 import net.robotmedia.billing.utils.Security;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +48,7 @@ import java.util.List;
 import java.util.Set;
 
 public class GoogleBillingController extends AbstractBillingController {
-    public static final String LOG_TAG = "Billing";
+    public static final String LOG_TAG = "GoogleBillingController";
     private static final String JSON_NONCE = "nonce";
     private static final String JSON_ORDERS = "orders";
     private boolean debug = false;
@@ -60,8 +59,6 @@ public class GoogleBillingController extends AbstractBillingController {
     private HashMap<Long, BillingRequest> pendingRequests = new HashMap<Long, BillingRequest>();
 
     private Set<String> automaticConfirmations = new HashSet<String>();
-    private IConfiguration configuration = null;
-    private ISignatureValidator validator = null;
     private Context context;
     private Bus eventBus;
 
@@ -70,6 +67,7 @@ public class GoogleBillingController extends AbstractBillingController {
         super(context);
         this.context = context;
         this.eventBus = eventBus;
+        Logger.v(LOG_TAG, "Constructor called");
     }
 
     /**
@@ -181,6 +179,7 @@ public class GoogleBillingController extends AbstractBillingController {
             subscriptionStatus = BillingStatus.UNSUPPORTED;
         }
 
+        Logger.v(LOG_TAG, "onBillingChecked: supported = " + supported);
         eventBus.post(new BillingCheckedEvent(supported));
     }
 
@@ -190,7 +189,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * @param notifyId notification id.
      */
     protected void onNotify(String notifyId) {
-        Log.d(LOG_TAG, "Notification " + notifyId + " available");
+        Logger.d(LOG_TAG, "Notification " + notifyId + " available");
 
         getPurchaseInformation(context, notifyId);
     }
@@ -206,6 +205,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * @param purchaseIntent intent to purchase the item.
      */
     protected void onPurchaseIntent(String itemId, PendingIntent purchaseIntent) {
+        Logger.d(LOG_TAG, "Purchase intent event for item " + itemId + " being posted");
         eventBus.post(new PurchaseIntentEvent(itemId, purchaseIntent));
     }
 
@@ -221,24 +221,23 @@ public class GoogleBillingController extends AbstractBillingController {
      * @param signature  data signature.
      */
     public void onPurchaseStateChanged(String signedData, String signature) {
-        Log.d(LOG_TAG, "Purchase state changed");
+        Logger.d(LOG_TAG, "Purchase state changed");
 
         if (TextUtils.isEmpty(signedData)) {
-            Log.w(LOG_TAG, "Signed data is empty");
+            Logger.w(LOG_TAG, "Signed data is empty");
             return;
         } else {
-            Log.d(LOG_TAG, signedData);
+            Logger.d(LOG_TAG, signedData);
         }
 
         if (!debug) {
             if (TextUtils.isEmpty(signature)) {
-                Log.w(LOG_TAG, "Empty signature requires debug mode");
+                Logger.w(LOG_TAG, "Empty signature requires debug mode");
                 return;
             }
-            final ISignatureValidator validator = this.validator != null ? this.validator
-                    : new DefaultSignatureValidator(configuration);
+            final ISignatureValidator validator = new DefaultSignatureValidator(configuration);
             if (!validator.validate(signedData, signature)) {
-                Log.w(LOG_TAG, "Signature does not match data.");
+                Logger.w(LOG_TAG, "Signature does not match data.");
                 return;
             }
         }
@@ -247,12 +246,12 @@ public class GoogleBillingController extends AbstractBillingController {
         try {
             JSONObject jObject = new JSONObject(signedData);
             if (!verifyNonce(jObject)) {
-                Log.w(LOG_TAG, "Invalid nonce");
+                Logger.w(LOG_TAG, "Invalid nonce");
                 return;
             }
             purchases = parsePurchases(jObject);
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "JSON exception: ", e);
+            Logger.e(LOG_TAG, "JSON exception: ", e);
             return;
         }
 
@@ -280,7 +279,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * @param request   the billing request.
      */
     public void onRequestSent(long requestId, BillingRequest request) {
-        Log.d(LOG_TAG, "Request " + requestId + " of type " + request.getRequestType() + " sent");
+        Logger.d(LOG_TAG, "Request " + requestId + " of type " + request.getRequestType() + " sent");
 
         if (request.isSuccess()) {
             pendingRequests.put(requestId, request);
@@ -299,7 +298,7 @@ public class GoogleBillingController extends AbstractBillingController {
      */
     protected void onResponseCode(long requestId, int responseCode) {
         final BillingRequest.ResponseCode response = BillingRequest.ResponseCode.valueOf(responseCode);
-        Log.d(LOG_TAG, "Request " + requestId + " received response " + response);
+        Logger.d(LOG_TAG, "Request " + requestId + " received response " + response);
 
         final BillingRequest request = pendingRequests.get(requestId);
         if (request != null) {
@@ -395,39 +394,13 @@ public class GoogleBillingController extends AbstractBillingController {
 
     @Override
     public void restoreTransactions() {
+        Logger.v(LOG_TAG, "restore Transactions called");
         final long nonce = Security.generateNonce();
         BillingService.restoreTransations(context, nonce);
     }
 
-    /**
-     * Sets debug mode.
-     *
-     * @param value
-     */
-    public final void setDebug(boolean value) {
-        debug = value;
-    }
-
-    /**
-     * Sets a custom signature validator. If no custom signature validator is
-     * provided,
-     * {@link net.robotmedia.billing.security.DefaultSignatureValidator} will
-     * be used.
-     *
-     * @param validator signature validator instance.
-     */
-    public void setSignatureValidator(ISignatureValidator validator) {
-        this.validator = validator;
-    }
-
-    /**
-     * Starts the specified purchase intent with the specified activity.
-     *
-     * @param activity
-     * @param purchaseIntent purchase intent.
-     * @param intent
-     */
-    public static void startPurchaseIntent(Activity activity, PendingIntent purchaseIntent, Intent intent) {
+    @Override
+    public void startPurchaseIntent(Activity activity, PendingIntent purchaseIntent, Intent intent) {
         if (Compatibility.isStartIntentSenderSupported()) {
             // This is on Android 2.0 and beyond. The in-app buy page activity
             // must be on the activity stack of the application.
@@ -439,7 +412,7 @@ public class GoogleBillingController extends AbstractBillingController {
             try {
                 purchaseIntent.send(activity, 0 /* code */, intent);
             } catch (CanceledException e) {
-                Log.e(LOG_TAG, "Error starting purchase intent", e);
+                Logger.e(LOG_TAG, "Error starting purchase intent", e);
             }
         }
     }

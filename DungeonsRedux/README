@@ -18,13 +18,12 @@ code, do the following:
 3. On the Edit Profile page, scroll down to the Licensing & In-app Billing panel.
 4. Copy your public key to the clipboard.
 5. Open src/com/cperryinc/billing/example/Application.java in the editor of your choice.
-6. Search for the following line:
-   return "your public key here";
+6. Search for the following line: return "your public key here";
 7. Replace the string with your public key.
 8. Save the file.
 
 After you add your public key to the Application.java file, you can compile the application as you
-normally would.
+normally would (in RELEASE mode, or you'll receive the response RESULT_DEVELOPER_ERROR).
 
 ---------------------------------------------------------
 Configuring the sample application for Amazon billing

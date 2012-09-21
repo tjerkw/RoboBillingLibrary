@@ -2,3 +2,7 @@
 .metadata
 .idea
 out
+DungeonsRedux/AndroidKeys/privatekey.keystore
+DungeonsRedux/ant.properties
+DungeonsRedux/local.properties
+RoboBillingLibrary/local.properties

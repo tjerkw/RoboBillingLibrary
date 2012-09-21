@@ -18,9 +18,9 @@ package net.robotmedia.billing;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-import com.google.inject.Inject;
 import com.cperryinc.robobilling.RoboBillingController;
+import com.cperryinc.robobilling.logging.Logger;
+import com.google.inject.Inject;
 import roboguice.RoboGuice;
 
 public class BillingReceiver extends BroadcastReceiver {
@@ -52,7 +52,7 @@ public class BillingReceiver extends BroadcastReceiver {
         } else if (ACTION_RESPONSE_CODE.equals(action)) {
         	responseCode(intent);
         } else {
-            Log.w(this.getClass().getSimpleName(), "Unexpected action: " + action);
+            Logger.w(this.getClass().getSimpleName(), "Unexpected action: " + action);
         }
     }
 

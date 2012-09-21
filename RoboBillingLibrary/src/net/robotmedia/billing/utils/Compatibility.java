@@ -15,14 +15,14 @@
 
 package net.robotmedia.billing.utils;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.util.Log;
+import com.cperryinc.robobilling.logging.Logger;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class Compatibility {
     private static Method startIntentSender;
@@ -64,7 +64,7 @@ public class Compatibility {
             try {
             	startIntentSender.invoke(activity, args);
 			} catch (Exception e) {
-				Log.e(Compatibility.class.getSimpleName(), "startIntentSender", e);
+				Logger.e(Compatibility.class.getSimpleName(), "startIntentSender", e);
 			}
        }
 	}

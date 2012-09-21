@@ -1,7 +1,23 @@
+/*   Copyright 2012 Christopher Perry Inc.
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*/
+
 package com.cperryinc.robobilling;
 
 import android.content.Context;
 import android.util.Log;
+import com.cperryinc.robobilling.logging.Logger;
 import net.robotmedia.billing.model.Transaction;
 import net.robotmedia.billing.model.TransactionManager;
 import net.robotmedia.billing.utils.IConfiguration;
@@ -70,6 +86,7 @@ public abstract class AbstractBillingController implements RoboBillingController
     }
 
     protected void storeTransaction(Context context, Transaction t) {
+        Log.v(LOG_TAG, "Storing transaction");
         final Transaction t2 = t.clone();
         obfuscate(context, t2);
         TransactionManager.addTransaction(context, t2);
@@ -140,7 +157,7 @@ public abstract class AbstractBillingController implements RoboBillingController
     protected byte[] getSalt() {
         byte[] salt = null;
         if (configuration == null || ((salt = configuration.getObfuscationSalt()) == null)) {
-            Log.w(LOG_TAG, "Can't (un)obfuscate purchases without salt");
+            Logger.w(LOG_TAG, "Can't (un)obfuscate purchases without salt");
         }
         return salt;
     }
