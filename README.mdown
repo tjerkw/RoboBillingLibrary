@@ -1,6 +1,137 @@
-RoboBillingLibrary
-=========================
+Robo Billing Library
+=======================
 
-I'm extending AndroidBillingLibrary to add Amazon in app purchases in one comprehensive library.
+*Robo Billing Library* is an extention of [Android Billing Library][2], which adds support for [Amazon In-App Purchases][3]. It makes use of [Roboguice][7] for dependency injection, and [Otto][8] for decoupling events from components.
 
-This is a work in progress, and not ready for production so please don't try to use this yet.
+Billing Should Be Simple
+------------------------
+
+  `requestPurchase("com.example.item")`
+
+That's how simple it should be to use Android in-app billing. And with this library it is. 
+
+It doesn't matter whether you are publishing on [Google Play][1], or the [Amazon Appstore][2], Robo Billing Library makes it easy to publish to both with minimal effort.
+
+
+
+Transactions are stored in a local obfuscated database which can be easily queried.
+
+Getting Started
+===============
+
+* Get acquainted with the [Android In-app Billing][4] documentation, and the [Amazon In-app Purhasing API][3]
+
+* Add *Robo Billing Library* to your project.
+
+* Follow the **Google Play** or **Amazon Appstore** setup below
+
+* Subclass [RoboBillingApplication][5] in your Application. 
+
+* Subclass [RoboBillingFragmentActivity][6] in the Activity in which you want to use in-app billing. Or inject [RoboBillingController][9] into your Activity if you need finer-grain control.
+
+**That's it!**
+
+
+Google Play Setup
+-----------------
+
+For **Google Play**, open the *AndroidManifest.xml* of your application and add the following inside the `<manifest>` element:
+
+`<uses-permission android:name="com.android.vending.BILLING" />`
+
+And the following inside the `<application>` element:
+
+`<meta-data android:name="billingMode" android:value="google" />`
+
+As well as the following service and receiver also inside the `<application>` element:
+
+    <service android:name="net.robotmedia.billing.BillingService" />
+    <receiver android:name="net.robotmedia.billing.BillingReceiver">
+        <intent-filter>
+            <action android:name="com.android.vending.billing.IN_APP_NOTIFY" />
+            <action android:name="com.android.vending.billing.RESPONSE_CODE" />
+            <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
+        </intent-filter>
+    </receiver>
+
+Amazon Appstore Setup
+---------------------
+For **Amazon Appstore**, open the *AndroidManifest.xml* of your application and add the following inside the `<application>` element:
+
+`<meta-data android:name="billingMode" android:value="amazon" />`
+
+As well as the following receiver also inside the `<application>` element:
+   
+    <receiver android:name="com.amazon.inapp.purchasing.ResponseReceiver">
+        <intent-filter>
+            <action android:name="com.amazon.inapp.purchasing.NOTIFY"
+                android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY"/>
+        </intent-filter>
+    </receiver>
+    
+
+
+Usage
+=====
+
+Subclassing RoboBillingFragmentActivity
+---------------------------------------
+
+[RoboBillingFragmentActivity][6] is an abstract activity that provides default integration with in-app billing (an analogous class for fragments is also provided). It is useful to get acquainted with the library, or for very simple applications that require in-app billing integration in only one activity. For more flexibility use [RoboBillingController][9] directly.
+
+When created your [RoboBillingFragmentActivity][6] instance will check if in-app billing is supported, followed by a call to `onBillingChecked(boolean)`, which has to be implemented by the subclass.
+
+Additionally, your [RoboBillingFragmentActivity][6] subclass will attempt to restore all transactions, only once. This is necessary in case the user has previously installed the app and made purchases. Existing transactions will generate calls to `onPurchaseStateChanged(PurchaseStateChangeEvent event)`, which has to be implemented by the subclass.
+
+Starting a purchase is as simple as calling `requestPurchase(String)`. [RoboBillingFragmentActivity][6] will start the Google Play or Amazon Appstore intent automatically and `onPurchaseStateChange(PurchaseStateChangeEvent event)` will be called after the transaction is confirmed.
+
+RoboBillingController
+---------------------
+
+[RoboBillingController][9] provides high-level functions to interact with the Billing service and to query an obfuscated local transaction database.
+
+Since most billing functions are asynchronous, [RoboBillingController][9] notifies whichever object(s) are listening on the event bus for the various [billing events][10] to be fired. 
+
+Additionally, [RoboBillingController][9] requires an `IConfiguration` instance from which the public key required to validate signed messages and a salt to obfuscate transactions are obtained. A good place to provide the configuration is in the `Application` subclass.
+
+Dungeons Redux
+==============
+
+[Dungeons Redux][11] is a sample app that shows how to use *Robo Billing Library* via subclassing [RoboBillingApplication][5] and [RoboBillingFragmentActivity][6]. It is a simplified version of the Dungeons in-app billing example provided by Google.
+
+It should be noted that Dungeons Redux does not intend to be an example of how to use in-app billing in general.
+
+Contact
+=======
+
+http://twitter.com/chris_ftmfw | http://about.me/christopherjperry
+
+License
+=======
+
+Copyright 2012 Christopher Perry Inc.<br/>
+Copyright 2011 Robot Media SL (http://www.robotmedia.net)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+[1]: https://play.google.com/store
+[2]: http://www.amazon.com/mobile-apps/b?ie=UTF8&node=2350149011
+[3]: https://developer.amazon.com/sdk/in-app-purchasing.html
+[4]: http://developer.android.com/guide/google/play/billing/index.html
+[5]: https://github.com/christopherperry/RoboBillingLibrary/blob/master/RoboBillingLibrary/src/com/cperryinc/robobilling/RoboBillingApplication.java
+[6]: https://github.com/christopherperry/RoboBillingLibrary/blob/master/RoboBillingLibrary/src/com/cperryinc/robobilling/helper/RoboBillingFragmentActivity.java
+[7]: http://code.google.com/p/roboguice/
+[8]: https://github.com/square/otto
+[9]: https://github.com/christopherperry/RoboBillingLibrary/blob/master/RoboBillingLibrary/src/com/cperryinc/robobilling/RoboBillingController.java
+[10]: https://github.com/christopherperry/RoboBillingLibrary/tree/master/RoboBillingLibrary/src/com/cperryinc/robobilling/event
+[11]: https://github.com/christopherperry/RoboBillingLibrary/tree/master/DungeonsRedux
