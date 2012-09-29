@@ -1,7 +1,7 @@
 Robo Billing Library
 =======================
 
-*Robo Billing Library* is an extention of [Android Billing Library][2], which adds support for [Amazon In-App Purchases][3]. It makes use of [Roboguice][7] for dependency injection, and [Otto][8] for decoupling events from components.
+*Robo Billing Library* is an extention of [Android Billing Library][2], which adds support for [Amazon In-App Purchases][3]. It makes use of [Roboguice][7] for dependency injection, and [Otto][8] for decoupling different parts of the library while still allowing it to communicate efficiently.
 
 Billing Should Be Simple
 ------------------------
