@@ -26,26 +26,16 @@ import net.robotmedia.billing.utils.IConfiguration;
 import roboguice.RoboGuice;
 
 public abstract class RoboBillingApplication extends Application {
-
     /**
-     * The type of billing module to use in the application.
-     */
-    public static enum BillingMode {
-        AMAZON, GOOGLE
-    }
-
-    private static String userId = "unknown";
-    @Inject private RoboBillingController billingController;
-
-    /**
-     * Tells Roboguice to set the event Bus as a singleton,
-     * when injecting it
+     * Tells Roboguice to set the event Bus, and the User as a singleton
+     * when injecting them
      */
     public class BaseInjectionModule extends AbstractModule {
 
         @Override
         protected void configure() {
             bind(Bus.class).in(Singleton.class);
+            bind(User.class).in(Singleton.class);
         }
     }
 
@@ -54,6 +44,7 @@ public abstract class RoboBillingApplication extends Application {
      * to injections of AndroidBillingController
      */
     public class GoogleInjectionModule extends BaseInjectionModule {
+
         @Override
         protected void configure() {
             super.configure();
@@ -74,20 +65,23 @@ public abstract class RoboBillingApplication extends Application {
             bind(RoboBillingController.class).
                     to(AmazonBillingController.class).in(Singleton.class);
         }
+
     }
 
-    public abstract BillingMode getBillingMode();
-
-    public abstract IConfiguration getConfiguration();
+    @Inject private RoboBillingController billingController;
+    @Inject private User user;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        BillingMode billingMode = getBillingMode();
-        AbstractModule module = new GoogleInjectionModule();
+        String name = ManifestReader.getMetaDataValue(this, "billingMode");
+        BillingMode billingMode = BillingMode.from(name);
+        AbstractModule module;
         if (billingMode == BillingMode.AMAZON) {
             module = new AmazonInjectionModule();
+        } else {
+            module = new GoogleInjectionModule();
         }
 
         /**
@@ -107,12 +101,10 @@ public abstract class RoboBillingApplication extends Application {
         billingController.setConfiguration(getConfiguration());
     }
 
-    public static String getCurrentUser() {
-        return RoboBillingApplication.userId;
-    }
+    public abstract IConfiguration getConfiguration();
 
-    public static void setCurrentUser(String userId) {
-        RoboBillingApplication.userId = userId;
+    public User getUser() {
+        return user;
     }
 
     private class ConfigurationNotSetException extends RuntimeException {

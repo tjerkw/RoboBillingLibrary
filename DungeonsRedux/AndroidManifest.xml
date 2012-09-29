@@ -9,6 +9,7 @@
 
     <application android:icon="@drawable/icon" android:label="@string/app_name"
                  android:name="com.cperryinc.billing.example.Application">
+
         <activity android:name="com.cperryinc.billing.example.Dungeons" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -33,6 +34,8 @@
                         android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY"/>
             </intent-filter>
         </receiver>
+
+        <meta-data android:name="billingMode" android:value="amazon" />
 
     </application>
 

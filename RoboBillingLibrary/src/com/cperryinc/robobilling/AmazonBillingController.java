@@ -52,12 +52,14 @@ public class AmazonBillingController extends AbstractBillingController {
     private static final String OFFSET = "offset";
     private Context context;
     private Bus eventBus;
+    private User user;
 
     @Inject
-    public AmazonBillingController(Context context, Bus eventBus) {
+    public AmazonBillingController(Context context, Bus eventBus, User user) {
         super(context);
         this.context = context;
         this.eventBus = eventBus;
+        this.user = user;
     }
 
     @Override
@@ -225,7 +227,7 @@ public class AmazonBillingController extends AbstractBillingController {
                 final String userId = getUserIdResponse.getUserId();
 
                 // Each UserID has their own shared preferences file, and we'll load that file when a new user logs in.
-                RoboBillingApplication.setCurrentUser(userId);
+                user.setUserId(userId);
                 return true;
             } else {
                 Logger.v(TAG, "onGetUserIdResponse: Unable to get user ID.");
@@ -241,7 +243,7 @@ public class AmazonBillingController extends AbstractBillingController {
             super.onPostExecute(result);
             if (result) {
                 PurchasingManager.initiatePurchaseUpdatesRequest(Offset.fromString(context
-                        .getSharedPreferences(RoboBillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
+                        .getSharedPreferences(user.getUserId(), Context.MODE_PRIVATE)
                         .getString(OFFSET, Offset.BEGINNING.toString())));
             }
         }
@@ -261,13 +263,13 @@ public class AmazonBillingController extends AbstractBillingController {
         @Override
         protected Boolean doInBackground(final PurchaseResponse... params) {
             final PurchaseResponse purchaseResponse = params[0];
-            final String userId = RoboBillingApplication.getCurrentUser();
+            final String userId = user.getUserId();
 
             if (!purchaseResponse.getUserId().equals(userId)) {
                 // currently logged in user is different than what we have so update the state
-                RoboBillingApplication.setCurrentUser(purchaseResponse.getUserId());
+                user.setUserId(purchaseResponse.getUserId());
                 PurchasingManager.initiatePurchaseUpdatesRequest(
-                        Offset.fromString(context.getSharedPreferences(RoboBillingApplication.getCurrentUser(), Context.MODE_PRIVATE)
+                        Offset.fromString(context.getSharedPreferences(user.getUserId(), Context.MODE_PRIVATE)
                                 .getString(OFFSET, Offset.BEGINNING.toString())));
             }
 
@@ -338,7 +340,7 @@ public class AmazonBillingController extends AbstractBillingController {
         @Override
         protected Boolean doInBackground(final PurchaseUpdatesResponse... params) {
             final PurchaseUpdatesResponse purchaseUpdatesResponse = params[0];
-            final String userId = RoboBillingApplication.getCurrentUser();
+            final String userId = user.getUserId();
             if (!purchaseUpdatesResponse.getUserId().equals(userId)) {
                 return false;
             }
