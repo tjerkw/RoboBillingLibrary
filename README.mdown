@@ -94,6 +94,29 @@ Since most billing functions are asynchronous, [RoboBillingController][9] notifi
 
 Additionally, [RoboBillingController][9] requires an `IConfiguration` instance from which the public key required to validate signed messages and a salt to obfuscate transactions are obtained. A good place to provide the configuration is in the `Application` subclass.
 
+Proguard
+========
+
+If you are using Proguard to obfuscate your code (and you should if you're using this library), you will need to add the following to the *proguard.cfg* file:
+
+    # Needed for Square's Otto library
+    -keepclassmembers class ** {
+        @com.squareup.otto.Subscribe public *;
+        @com.squareup.otto.Produce public *;
+    }
+    
+    # Needed by the Roboguice library
+    -keep public class roboguice.**
+    -keep class com.google.inject.Binder
+    -keepclassmembers class * {
+        @com.google.inject.Inject <init>(...);
+    }
+    # There's no way to keep all @Observes methods, so use the On*Event convention to identify event handlers
+    -keepclassmembers class * {
+        void *(**On*Event);
+    }
+
+
 Dungeons Redux
 ==============
 
