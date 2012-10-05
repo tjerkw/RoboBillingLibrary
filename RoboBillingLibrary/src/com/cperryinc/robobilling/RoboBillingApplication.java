@@ -18,6 +18,7 @@ package com.cperryinc.robobilling;
 import android.app.Application;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
 import com.squareup.otto.Bus;
@@ -77,19 +78,25 @@ public abstract class RoboBillingApplication extends Application {
 
         String name = ManifestReader.getMetaDataValue(this, "billingMode");
         BillingMode billingMode = BillingMode.from(name);
-        AbstractModule module;
+        Module billingModule;
         if (billingMode == BillingMode.AMAZON) {
-            module = new AmazonInjectionModule();
+            billingModule = new AmazonInjectionModule();
         } else {
-            module = new GoogleInjectionModule();
+            billingModule = new GoogleInjectionModule();
+        }
+
+        Module userModule = getModule();
+        Module applicationModule;
+        if (userModule != null) {
+            applicationModule = Modules.combine(RoboGuice.newDefaultRoboModule(this), billingModule, userModule);
+        } else {
+            applicationModule = Modules.combine(RoboGuice.newDefaultRoboModule(this), billingModule);
         }
 
         /**
          * Binds the InjectionModule to the base application injector
          */
-        RoboGuice.setBaseApplicationInjector(this,
-                RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(this)).with(module));
+        RoboGuice.setBaseApplicationInjector(this, RoboGuice.DEFAULT_STAGE, applicationModule);
 
         // Inject the billing controller, and set the configuration
         RoboGuice.getInjector(this).injectMembers(this);
@@ -100,6 +107,14 @@ public abstract class RoboBillingApplication extends Application {
         }
         billingController.setConfiguration(getConfiguration());
     }
+
+    /**
+     * Gets the module for your application. This will be combined with the billing module, as well as the
+     * Roboguice module.
+     *
+     * @return Module
+     */
+    public abstract Module getModule();
 
     public abstract IConfiguration getConfiguration();
 
