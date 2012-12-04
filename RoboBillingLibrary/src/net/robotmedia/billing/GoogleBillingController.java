@@ -21,14 +21,14 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
-import com.cperryinc.robobilling.AbstractBillingController;
-import com.cperryinc.robobilling.event.BillingCheckedEvent;
-import com.cperryinc.robobilling.event.PurchaseIntentEvent;
-import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
-import com.cperryinc.robobilling.event.RequestPurchaseResponseEvent;
-import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
-import com.cperryinc.robobilling.event.TransactionsRestoredEvent;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.AbstractBillingController;
+import com.ensolabs.robobilling.event.BillingCheckedEvent;
+import com.ensolabs.robobilling.event.PurchaseIntentEvent;
+import com.ensolabs.robobilling.event.PurchaseStateChangeEvent;
+import com.ensolabs.robobilling.event.RequestPurchaseResponseEvent;
+import com.ensolabs.robobilling.event.SubscriptionCheckedEvent;
+import com.ensolabs.robobilling.event.TransactionsRestoredEvent;
+import com.ensolabs.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;
@@ -167,7 +167,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * {@link net.robotmedia.billing.BillingRequest.CheckBillingSupported} request is
      * received.
      *
-     * Posts a {@link com.cperryinc.robobilling.event.BillingCheckedEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.BillingCheckedEvent} to the event bus
      *
      * @param supported
      */
@@ -199,7 +199,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * {@link net.robotmedia.billing.BillingRequest.RequestPurchase} request is
      * received.
      *
-     * Posts a {@link com.cperryinc.robobilling.event.PurchaseIntentEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.PurchaseIntentEvent} to the event bus
      *
      * @param itemId         id of the item whose purchase was requested.
      * @param purchaseIntent intent to purchase the item.
@@ -215,7 +215,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * received. Registers all transactions in local memory and confirms those
      * who can be confirmed automatically.
      *
-     * Posts a {@link com.cperryinc.robobilling.event.PurchaseStateChangeEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.PurchaseStateChangeEvent} to the event bus
      *
      * @param signedData signed JSON data received from the Market Billing service.
      * @param signature  data signature.
@@ -312,7 +312,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * {@link net.robotmedia.billing.BillingRequest.CheckSubscriptionSupported} request
      * is received.
      *
-     * Posts a {@link com.cperryinc.robobilling.event.SubscriptionCheckedEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.SubscriptionCheckedEvent} to the event bus
      *
      * @param supported
      */
@@ -327,7 +327,7 @@ public class GoogleBillingController extends AbstractBillingController {
     }
 
     /**
-     * Posts a {@link com.cperryinc.robobilling.event.TransactionsRestoredEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.TransactionsRestoredEvent} to the event bus
      */
     protected void onTransactionsRestored() {
         eventBus.post(new TransactionsRestoredEvent());
@@ -428,7 +428,7 @@ public class GoogleBillingController extends AbstractBillingController {
     }
 
     /**
-     * Posts a {@link com.cperryinc.robobilling.event.RequestPurchaseResponseEvent} to the event bus
+     * Posts a {@link com.ensolabs.robobilling.event.RequestPurchaseResponseEvent} to the event bus
      *
      * @param itemId
      * @param response

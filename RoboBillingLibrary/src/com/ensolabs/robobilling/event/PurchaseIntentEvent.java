@@ -13,24 +13,24 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling.event;
+package com.ensolabs.robobilling.event;
 
-import static net.robotmedia.billing.BillingRequest.ResponseCode;
+import android.app.PendingIntent;
 
-public class RequestPurchaseResponseEvent {
+public class PurchaseIntentEvent {
     private String itemId;
-    private ResponseCode response;
+    private PendingIntent purchaseIntent;
 
-    public RequestPurchaseResponseEvent(String itemId, ResponseCode response) {
+    public PurchaseIntentEvent(String itemId, PendingIntent purchaseIntent) {
         this.itemId = itemId;
-        this.response = response;
+        this.purchaseIntent = purchaseIntent;
     }
 
     public String getItemId() {
         return itemId;
     }
 
-    public ResponseCode getResponse() {
-        return response;
+    public PendingIntent getPurchaseIntent() {
+        return purchaseIntent;
     }
 }

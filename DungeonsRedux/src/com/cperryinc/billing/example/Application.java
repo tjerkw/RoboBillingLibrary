@@ -15,8 +15,8 @@
 
 package com.cperryinc.billing.example;
 
-import com.cperryinc.robobilling.BillingMode;
-import com.cperryinc.robobilling.RoboBillingApplication;
+import com.ensolabs.robobilling.BillingMode;
+import com.ensolabs.robobilling.RoboBillingApplication;
 import net.robotmedia.billing.utils.IConfiguration;
 
 public class Application extends RoboBillingApplication {

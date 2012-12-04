@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling.event;
+package com.ensolabs.robobilling.event;
 
 /**
  * No data in this so it's an empty event

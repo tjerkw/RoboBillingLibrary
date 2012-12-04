@@ -17,7 +17,7 @@ package net.robotmedia.billing.utils;
 
 import android.content.Context;
 import android.provider.Settings;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.logging.Logger;
 import net.robotmedia.billing.utils.AESObfuscator.ValidationException;
 
 import java.security.SecureRandom;

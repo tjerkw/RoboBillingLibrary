@@ -20,8 +20,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import com.android.vending.billing.IMarketBillingService;
-import com.cperryinc.robobilling.RoboBillingController;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.RoboBillingController;
+import com.ensolabs.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import roboguice.RoboGuice;
 

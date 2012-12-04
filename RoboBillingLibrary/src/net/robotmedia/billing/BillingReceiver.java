@@ -18,8 +18,8 @@ package net.robotmedia.billing;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import com.cperryinc.robobilling.RoboBillingController;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.RoboBillingController;
+import com.ensolabs.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import roboguice.RoboGuice;
 

@@ -2,6 +2,7 @@
 .metadata
 .idea
 out
+target
 DungeonsRedux/AndroidKeys/privatekey.keystore
 DungeonsRedux/ant.properties
 DungeonsRedux/local.properties

@@ -19,7 +19,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentSender;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.logging.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

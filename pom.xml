@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <version>1.0</version>
+    <groupId>com.ensolabs.robobilling</groupId>
+    <artifactId>robobillinglibrary-parent</artifactId>
+    <name>Robobilling Library parent</name>
+    <packaging>pom</packaging>
+
+    <issueManagement>
+        <url>https://github.com/christopherperry/RoboBillingLibrary/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/christopherperry/RoboBillingLibrary</url>
+        <connection>scm:git:git://github.com/christopherperry/RoboBillingLibrary.git</connection>
+        <developerConnection>scm:git:git@github.com:christopherperry/RoboBillingLibrary.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>mr.christopher.perry@gmail.com</email>
+            <name>Christopher Perry</name>
+            <url>https://github.com/christopherperry</url>
+            <id>christopherperry</id>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>DungeonsRedux</module>
+        <module>RoboBillingLibrary</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <android.version>4.2_r1</android.version>
+    </properties>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>3.4.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <sdk>
+                            <platform>16</platform>
+                        </sdk>
+                        <!--<undeployBeforeDeploy>true</undeployBeforeDeploy>-->
+                        <proguard>
+                            <skip>false</skip>
+                            <config>../proguard.cfg</config>
+                        </proguard>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

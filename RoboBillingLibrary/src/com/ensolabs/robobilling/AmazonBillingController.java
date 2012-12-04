@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling;
+package com.ensolabs.robobilling;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -29,11 +29,11 @@ import com.amazon.inapp.purchasing.PurchasingManager;
 import com.amazon.inapp.purchasing.PurchasingObserver;
 import com.amazon.inapp.purchasing.Receipt;
 import com.amazon.inapp.purchasing.SubscriptionPeriod;
-import com.cperryinc.robobilling.event.BillingCheckedEvent;
-import com.cperryinc.robobilling.event.ItemInfoEvent;
-import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
-import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.event.BillingCheckedEvent;
+import com.ensolabs.robobilling.event.ItemInfoEvent;
+import com.ensolabs.robobilling.event.PurchaseStateChangeEvent;
+import com.ensolabs.robobilling.event.SubscriptionCheckedEvent;
+import com.ensolabs.robobilling.logging.Logger;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.model.Transaction;

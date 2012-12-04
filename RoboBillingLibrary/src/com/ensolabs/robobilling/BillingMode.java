@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling;
+package com.ensolabs.robobilling;
 
 /**
  * The type of billing module to use in the application.

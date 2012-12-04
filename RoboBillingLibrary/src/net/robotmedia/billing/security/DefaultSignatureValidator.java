@@ -16,7 +16,7 @@
 package net.robotmedia.billing.security;
 
 import android.text.TextUtils;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.logging.Logger;
 import net.robotmedia.billing.utils.Base64;
 import net.robotmedia.billing.utils.Base64DecoderException;
 import net.robotmedia.billing.utils.IConfiguration;

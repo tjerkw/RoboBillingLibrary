@@ -13,16 +13,16 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling;
+package com.ensolabs.robobilling.event;
 
-public class User {
-    private String userId = "unknown";
+public class SubscriptionCheckedEvent {
+    private boolean isSubscriptionSupported;
 
-    public String getUserId() {
-        return userId;
+    public SubscriptionCheckedEvent(boolean subscriptionSupported) {
+        isSubscriptionSupported = subscriptionSupported;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public boolean isSubscriptionSupported() {
+        return isSubscriptionSupported;
     }
 }

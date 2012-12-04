@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling;
+package com.ensolabs.robobilling;
 
 import android.app.Application;
 import com.google.inject.AbstractModule;

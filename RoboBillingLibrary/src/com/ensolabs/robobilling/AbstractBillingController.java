@@ -13,11 +13,11 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling;
+package com.ensolabs.robobilling;
 
 import android.content.Context;
 import android.util.Log;
-import com.cperryinc.robobilling.logging.Logger;
+import com.ensolabs.robobilling.logging.Logger;
 import net.robotmedia.billing.model.Transaction;
 import net.robotmedia.billing.model.TransactionManager;
 import net.robotmedia.billing.utils.IConfiguration;

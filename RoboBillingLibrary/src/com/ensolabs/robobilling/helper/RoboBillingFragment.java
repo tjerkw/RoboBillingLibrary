@@ -13,30 +13,30 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.robobilling.helper;
+package com.ensolabs.robobilling.helper;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import com.cperryinc.robobilling.RoboBillingController;
-import com.cperryinc.robobilling.event.BillingCheckedEvent;
-import com.cperryinc.robobilling.event.ItemInfoEvent;
-import com.cperryinc.robobilling.event.PurchaseIntentEvent;
-import com.cperryinc.robobilling.event.PurchaseStateChangeEvent;
-import com.cperryinc.robobilling.event.RequestPurchaseResponseEvent;
-import com.cperryinc.robobilling.event.SubscriptionCheckedEvent;
-import com.cperryinc.robobilling.event.TransactionsRestoredEvent;
+import com.ensolabs.robobilling.RoboBillingController;
+import com.ensolabs.robobilling.event.BillingCheckedEvent;
+import com.ensolabs.robobilling.event.ItemInfoEvent;
+import com.ensolabs.robobilling.event.PurchaseIntentEvent;
+import com.ensolabs.robobilling.event.PurchaseStateChangeEvent;
+import com.ensolabs.robobilling.event.RequestPurchaseResponseEvent;
+import com.ensolabs.robobilling.event.SubscriptionCheckedEvent;
+import com.ensolabs.robobilling.event.TransactionsRestoredEvent;
 import com.google.inject.Inject;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import roboguice.activity.RoboFragmentActivity;
+import roboguice.fragment.RoboFragment;
 
-public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
+public abstract class RoboBillingFragment extends RoboFragment {
     private static final String KEY_TRANSACTIONS_RESTORED = "com.cperryinc.robobilling.transactions_restored";
     @Inject private SharedPreferences preferences;
     @Inject protected RoboBillingController billingController;
     @Inject private Bus eventBus;
     private boolean hasCheckedBilling;
-    private RoboBillingFragmentActivity.EventSubscriber eventSubscriber;
+    private RoboBillingFragment.EventSubscriber eventSubscriber;
 
     public abstract void onPurchaseStateChanged(PurchaseStateChangeEvent event);
 
@@ -45,7 +45,7 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
     public abstract void onSubscriptionChecked(boolean supported);
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         eventSubscriber = new EventSubscriber();
@@ -59,7 +59,7 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         billingController.onResume();
 
@@ -75,7 +75,7 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onPause();
         eventBus.unregister(eventSubscriber);
     }
@@ -106,7 +106,7 @@ public abstract class RoboBillingFragmentActivity extends RoboFragmentActivity {
 
         @Subscribe
         public final void onPurchaseIntentEvent(PurchaseIntentEvent event) {
-            billingController.startPurchaseIntent(RoboBillingFragmentActivity.this, event.getPurchaseIntent(), null);
+            billingController.startPurchaseIntent(getActivity(), event.getPurchaseIntent(), null);
 
         }
 
