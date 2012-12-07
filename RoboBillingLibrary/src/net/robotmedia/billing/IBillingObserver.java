@@ -21,65 +21,57 @@ import android.app.PendingIntent;
 
 public interface IBillingObserver {
 
-	/**
-	 * Called after checking if in-app product billing is supported or not.
-	 * 
-	 * @param supported
-	 *            if true, in-app product billing is supported. If false, in-app
-	 *            product billing is not supported, and neither is subscription
-	 *            billing.
-	 * @see GoogleBillingController#checkBillingSupported(android.content.Context)
-	 */
-	public void onBillingChecked(boolean supported);
+    /**
+     * Called after checking if in-app product billing is supported or not.
+     *
+     * @param supported if true, in-app product billing is supported. If false, in-app
+     *                  product billing is not supported, and neither is subscription
+     *                  billing.
+     * @see GoogleBillingController#checkBillingSupported(android.content.Context)
+     */
+    public void onBillingChecked(boolean supported);
 
-	/**
-	 * Called after checking if subscription billing is supported or not.
-	 * 
-	 * @param supported
-	 *            if true, subscription billing is supported, and also is in-app
-	 *            product billing. Otherwise, subscription billing is not
-	 *            supported.
-	 */
-	public void onSubscriptionChecked(boolean supported);
+    /**
+     * Called after checking if subscription billing is supported or not.
+     *
+     * @param supported if true, subscription billing is supported, and also is in-app
+     *                  product billing. Otherwise, subscription billing is not
+     *                  supported.
+     */
+    public void onSubscriptionChecked(boolean supported);
 
-	/**
-	 * Called after requesting the purchase of the specified item.
-	 * 
-	 * @param itemId
-	 *            id of the item whose purchase was requested.
-	 * @param purchaseIntent
-	 *            a purchase pending intent for the specified item.
-	 * @see GoogleBillingController#requestPurchase(android.content.Context, String,
-	 *      boolean)
-	 */
-	public void onPurchaseIntent(String itemId, PendingIntent purchaseIntent);
+    /**
+     * Called after requesting the purchase of the specified item.
+     *
+     * @param itemId         id of the item whose purchase was requested.
+     * @param purchaseIntent a purchase pending intent for the specified item.
+     * @see GoogleBillingController#requestPurchase(android.content.Context, String,
+     *      boolean)
+     */
+    public void onPurchaseIntent(String itemId, PendingIntent purchaseIntent);
 
-	/**
-	 * Called when the specified item is purchased, cancelled or refunded.
-	 * 
-	 * @param itemId
-	 *            id of the item whose purchase state has changed.
-	 * @param state
-	 *            purchase state of the specified item.
-	 */
-	public void onPurchaseStateChanged(String itemId, PurchaseState state);
+    /**
+     * Called when the specified item is purchased, cancelled or refunded.
+     *
+     * @param itemId id of the item whose purchase state has changed.
+     * @param state  purchase state of the specified item.
+     */
+    public void onPurchaseStateChanged(String itemId, PurchaseState state);
 
-	/**
-	 * Called with the response for the purchase request of the specified item.
-	 * This is used for reporting various errors, or if the user backed out and
-	 * didn't purchase the item.
-	 * 
-	 * @param itemId
-	 *            id of the item whose purchase was requested
-	 * @param response
-	 *            response of the purchase request
-	 */
-	public void onRequestPurchaseResponse(String itemId, ResponseCode response);
+    /**
+     * Called with the response for the purchase request of the specified item.
+     * This is used for reporting various errors, or if the user backed out and
+     * didn't purchase the item.
+     *
+     * @param itemId   id of the item whose purchase was requested
+     * @param response response of the purchase request
+     */
+    public void onRequestPurchaseResponse(String itemId, ResponseCode response);
 
-	/**
-	 * Called when a restore transactions request has been successfully
-	 * received by the server.
-	 */
-	public void onTransactionsRestored();
+    /**
+     * Called when a restore transactions request has been successfully
+     * received by the server.
+     */
+    public void onTransactionsRestored();
 
 }

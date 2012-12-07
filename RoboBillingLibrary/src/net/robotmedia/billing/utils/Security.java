@@ -25,29 +25,31 @@ import java.util.HashSet;
 
 public class Security {
 
-	private static HashSet<Long> knownNonces = new HashSet<Long>();
-	private static final SecureRandom RANDOM = new SecureRandom();
-	private static final String TAG = Security.class.getSimpleName();
+    private static HashSet<Long> knownNonces = new HashSet<Long>();
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String TAG = Security.class.getSimpleName();
 
-	/** Generates a nonce (a random number used once). */
-	public static long generateNonce() {
-		long nonce = RANDOM.nextLong();
-		knownNonces.add(nonce);
-		return nonce;
-	}
+    /**
+     * Generates a nonce (a random number used once).
+     */
+    public static long generateNonce() {
+        long nonce = RANDOM.nextLong();
+        knownNonces.add(nonce);
+        return nonce;
+    }
 
-	public static boolean isNonceKnown(long nonce) {
-		return knownNonces.contains(nonce);
-	}
+    public static boolean isNonceKnown(long nonce) {
+        return knownNonces.contains(nonce);
+    }
 
-	public static void removeNonce(long nonce) {
-		knownNonces.remove(nonce);
-	}
-	
-	public static String obfuscate(Context context, byte[] salt, String original) {
-		final AESObfuscator obfuscator = getObfuscator(context, salt);
-		return obfuscator.obfuscate(original);
-	}
+    public static void removeNonce(long nonce) {
+        knownNonces.remove(nonce);
+    }
+
+    public static String obfuscate(Context context, byte[] salt, String original) {
+        final AESObfuscator obfuscator = getObfuscator(context, salt);
+        return obfuscator.obfuscate(original);
+    }
 
     /**
      * This used to return a singleton, but the salt changes between user login/logouts
@@ -57,21 +59,21 @@ public class Security {
      * @param salt
      * @return
      */
-	private static AESObfuscator getObfuscator(Context context, byte[] salt) {
-			final String installationId = Installation.id(context);
-			final String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-			final String password = installationId + deviceId + context.getPackageName();
-			return new AESObfuscator(salt, password);
-	}
-		
-	public static String unobfuscate(Context context, byte[] salt, String obfuscated) {
-		final AESObfuscator obfuscator = getObfuscator(context, salt);
-		try {
-			return obfuscator.unobfuscate(obfuscated);
-		} catch (ValidationException e) {
-			Logger.w(TAG, "Invalid obfuscated data or key");
-		}
-		return null;
-	}
+    private static AESObfuscator getObfuscator(Context context, byte[] salt) {
+        final String installationId = Installation.id(context);
+        final String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        final String password = installationId + deviceId + context.getPackageName();
+        return new AESObfuscator(salt, password);
+    }
+
+    public static String unobfuscate(Context context, byte[] salt, String obfuscated) {
+        final AESObfuscator obfuscator = getObfuscator(context, salt);
+        try {
+            return obfuscator.unobfuscate(obfuscated);
+        } catch (ValidationException e) {
+            Logger.w(TAG, "Invalid obfuscated data or key");
+        }
+        return null;
+    }
 
 }

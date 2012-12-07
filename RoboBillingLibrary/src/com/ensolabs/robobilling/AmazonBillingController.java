@@ -121,6 +121,7 @@ public class AmazonBillingController extends AbstractBillingController {
 
     /**
      * This is needed in the Google implementation, this version does nothing.
+     *
      * @param activity
      * @param purchaseIntent purchase intent.
      * @param intent

@@ -166,7 +166,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * Called after the response to a
      * {@link net.robotmedia.billing.BillingRequest.CheckBillingSupported} request is
      * received.
-     *
+     * <p/>
      * Posts a {@link com.ensolabs.robobilling.event.BillingCheckedEvent} to the event bus
      *
      * @param supported
@@ -198,7 +198,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * Called after the response to a
      * {@link net.robotmedia.billing.BillingRequest.RequestPurchase} request is
      * received.
-     *
+     * <p/>
      * Posts a {@link com.ensolabs.robobilling.event.PurchaseIntentEvent} to the event bus
      *
      * @param itemId         id of the item whose purchase was requested.
@@ -214,7 +214,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * {@link net.robotmedia.billing.BillingRequest.GetPurchaseInformation} request is
      * received. Registers all transactions in local memory and confirms those
      * who can be confirmed automatically.
-     *
+     * <p/>
      * Posts a {@link com.ensolabs.robobilling.event.PurchaseStateChangeEvent} to the event bus
      *
      * @param signedData signed JSON data received from the Market Billing service.
@@ -291,7 +291,6 @@ public class GoogleBillingController extends AbstractBillingController {
     /**
      * Called after a {@link net.robotmedia.billing.BillingRequest} is sent.
      *
-     *
      * @param requestId    the id of the request.
      * @param responseCode the response code.
      * @see net.robotmedia.billing.BillingRequest.ResponseCode
@@ -311,7 +310,7 @@ public class GoogleBillingController extends AbstractBillingController {
      * Called after the response to a
      * {@link net.robotmedia.billing.BillingRequest.CheckSubscriptionSupported} request
      * is received.
-     *
+     * <p/>
      * Posts a {@link com.ensolabs.robobilling.event.SubscriptionCheckedEvent} to the event bus
      *
      * @param supported

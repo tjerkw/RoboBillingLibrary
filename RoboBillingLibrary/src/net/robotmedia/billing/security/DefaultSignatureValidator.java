@@ -32,66 +32,64 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class DefaultSignatureValidator implements ISignatureValidator {
 
-	protected static final String KEY_FACTORY_ALGORITHM = "RSA";
-	protected static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
+    protected static final String KEY_FACTORY_ALGORITHM = "RSA";
+    protected static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
     private static final String LOG_TAG = "DefaultSignatureValidator";
 
     /**
-	 * Generates a PublicKey instance from a string containing the
-	 * Base64-encoded public key.
-	 * 
-	 * @param encodedPublicKey
-	 *            Base64-encoded public key
-	 * @throws IllegalArgumentException
-	 *             if encodedPublicKey is invalid
-	 */
-	protected PublicKey generatePublicKey(String encodedPublicKey) {
-		try {
-			byte[] decodedKey = Base64.decode(encodedPublicKey);
-			KeyFactory keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
-			return keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		} catch (InvalidKeySpecException e) {
-			Logger.e(LOG_TAG, "Invalid key specification.");
-			throw new IllegalArgumentException(e);
-		} catch (Base64DecoderException e) {
-			Logger.e(LOG_TAG, "Base64 decoding failed.");
-			throw new IllegalArgumentException(e);
-		}
-	}
+     * Generates a PublicKey instance from a string containing the
+     * Base64-encoded public key.
+     *
+     * @param encodedPublicKey Base64-encoded public key
+     * @throws IllegalArgumentException if encodedPublicKey is invalid
+     */
+    protected PublicKey generatePublicKey(String encodedPublicKey) {
+        try {
+            byte[] decodedKey = Base64.decode(encodedPublicKey);
+            KeyFactory keyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
+            return keyFactory.generatePublic(new X509EncodedKeySpec(decodedKey));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeySpecException e) {
+            Logger.e(LOG_TAG, "Invalid key specification.");
+            throw new IllegalArgumentException(e);
+        } catch (Base64DecoderException e) {
+            Logger.e(LOG_TAG, "Base64 decoding failed.");
+            throw new IllegalArgumentException(e);
+        }
+    }
 
-	private IConfiguration configuration;
+    private IConfiguration configuration;
 
-	public DefaultSignatureValidator(IConfiguration configuration) {
-		this.configuration = configuration;
-	}
+    public DefaultSignatureValidator(IConfiguration configuration) {
+        this.configuration = configuration;
+    }
 
-	private boolean validate(PublicKey publicKey, String signedData, String signature) {
-		Signature sig;
-		try {
-			sig = Signature.getInstance(SIGNATURE_ALGORITHM);
-			sig.initVerify(publicKey);
-			sig.update(signedData.getBytes());
-			if (!sig.verify(Base64.decode(signature))) {
-				Logger.e(LOG_TAG, "Signature verification failed.");
-				return false;
-			}
-			return true;
-		} catch (NoSuchAlgorithmException e) {
-			Logger.e(LOG_TAG, "NoSuchAlgorithmException");
-		} catch (InvalidKeyException e) {
-			Logger.e(LOG_TAG, "Invalid key specification");
-		} catch (SignatureException e) {
-			Logger.e(LOG_TAG, "Signature exception");
-		} catch (Base64DecoderException e) {
-			Logger.e(LOG_TAG, "Base64 decoding failed");
-		}
-		return false;
-	}
+    private boolean validate(PublicKey publicKey, String signedData, String signature) {
+        Signature sig;
+        try {
+            sig = Signature.getInstance(SIGNATURE_ALGORITHM);
+            sig.initVerify(publicKey);
+            sig.update(signedData.getBytes());
+            if (!sig.verify(Base64.decode(signature))) {
+                Logger.e(LOG_TAG, "Signature verification failed.");
+                return false;
+            }
+            return true;
+        } catch (NoSuchAlgorithmException e) {
+            Logger.e(LOG_TAG, "NoSuchAlgorithmException");
+        } catch (InvalidKeyException e) {
+            Logger.e(LOG_TAG, "Invalid key specification");
+        } catch (SignatureException e) {
+            Logger.e(LOG_TAG, "Signature exception");
+        } catch (Base64DecoderException e) {
+            Logger.e(LOG_TAG, "Base64 decoding failed");
+        }
+        return false;
+    }
 
-	public boolean validate(String signedData, String signature) {
-		if (configuration == null) {
+    public boolean validate(String signedData, String signature) {
+        if (configuration == null) {
             Logger.w(LOG_TAG, "Please set the configuration or turn on debug mode");
             return false;
         }
@@ -101,13 +99,13 @@ public class DefaultSignatureValidator implements ISignatureValidator {
             Logger.w(LOG_TAG, "Please supply a public key or turn on debug mode");
         }
 
-		if (signedData == null) {
-			Logger.e(LOG_TAG, "Data is null");
-			return false;
-		}
+        if (signedData == null) {
+            Logger.e(LOG_TAG, "Data is null");
+            return false;
+        }
 
-		PublicKey key = generatePublicKey(publicKey);
-		return validate(key, signedData, signature);
-	}
+        PublicKey key = generatePublicKey(publicKey);
+        return validate(key, signedData, signature);
+    }
 
 }
