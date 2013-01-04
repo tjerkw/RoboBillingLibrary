@@ -13,11 +13,14 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.billing.example;
+package com.ensolabs.billing.example;
 
 import com.ensolabs.robobilling.BillingMode;
 import com.ensolabs.robobilling.RoboBillingApplication;
+import com.google.inject.Module;
 import net.robotmedia.billing.utils.IConfiguration;
+
+import java.util.List;
 
 public class Application extends RoboBillingApplication {
     private BillingMode billingMode;
@@ -56,6 +59,12 @@ public class Application extends RoboBillingApplication {
             };
         }
         return configuration;
+    }
+
+    @Override
+    public List<? extends Module> getModules() {
+        // Not implemented, no need to provide our own bindings
+        return null;
     }
 
 }

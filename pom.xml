@@ -58,22 +58,6 @@
                         <target>1.6</target>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                    <artifactId>android-maven-plugin</artifactId>
-                    <version>3.4.1</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <sdk>
-                            <platform>17</platform>
-                        </sdk>
-                        <!--<undeployBeforeDeploy>true</undeployBeforeDeploy>-->
-                        <proguard>
-                            <skip>false</skip>
-                            <config>../proguard.cfg</config>
-                        </proguard>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>

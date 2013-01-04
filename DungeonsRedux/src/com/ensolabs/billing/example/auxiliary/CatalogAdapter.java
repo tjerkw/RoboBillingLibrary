@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.billing.example.auxiliary;
+package com.ensolabs.billing.example.auxiliary;
 
 import android.content.Context;
 import android.view.View;

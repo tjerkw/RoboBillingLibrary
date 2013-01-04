@@ -13,7 +13,7 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.billing.example;
+package com.ensolabs.billing.example;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,10 +27,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import com.cperryinc.billing.dungeons.redux.R;
-import com.cperryinc.billing.example.auxiliary.CatalogAdapter;
-import com.cperryinc.billing.example.auxiliary.CatalogEntry;
-import com.cperryinc.billing.example.auxiliary.CatalogEntry.Managed;
+import com.ensolabs.billing.dungeons.redux.R;
+import com.ensolabs.billing.example.auxiliary.CatalogAdapter;
+import com.ensolabs.billing.example.auxiliary.CatalogEntry;
+import com.ensolabs.billing.example.auxiliary.CatalogEntry.Managed;
 import com.ensolabs.robobilling.event.PurchaseStateChangeEvent;
 import com.ensolabs.robobilling.helper.RoboBillingFragmentActivity;
 import net.robotmedia.billing.model.Transaction;

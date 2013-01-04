@@ -18,12 +18,16 @@ package com.ensolabs.robobilling;
 import android.app.Application;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Module;
 import com.google.inject.Singleton;
 import com.google.inject.util.Modules;
 import com.squareup.otto.Bus;
 import net.robotmedia.billing.GoogleBillingController;
 import net.robotmedia.billing.utils.IConfiguration;
 import roboguice.RoboGuice;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class RoboBillingApplication extends Application {
     /**
@@ -65,7 +69,6 @@ public abstract class RoboBillingApplication extends Application {
             bind(RoboBillingController.class).
                     to(AmazonBillingController.class).in(Singleton.class);
         }
-
     }
 
     @Inject private RoboBillingController billingController;
@@ -87,9 +90,13 @@ public abstract class RoboBillingApplication extends Application {
         /**
          * Binds the InjectionModule to the base application injector
          */
+        List<Module> modules = new ArrayList<Module>();
+        modules.add(module);
+        modules.addAll(getModules());
+
         RoboGuice.setBaseApplicationInjector(this,
                 RoboGuice.DEFAULT_STAGE,
-                Modules.override(RoboGuice.newDefaultRoboModule(this)).with(module));
+                Modules.override(RoboGuice.newDefaultRoboModule(this)).with(modules));
 
         // Inject the billing controller, and set the configuration
         RoboGuice.getInjector(this).injectMembers(this);
@@ -102,6 +109,7 @@ public abstract class RoboBillingApplication extends Application {
     }
 
     public abstract IConfiguration getConfiguration();
+    public abstract List<? extends Module> getModules();
 
     public User getUser() {
         return user;

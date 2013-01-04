@@ -13,9 +13,9 @@
 *   limitations under the License.
 */
 
-package com.cperryinc.billing.example.auxiliary;
+package com.ensolabs.billing.example.auxiliary;
 
-import com.cperryinc.billing.dungeons.redux.R;
+import com.ensolabs.billing.dungeons.redux.R;
 
 public class CatalogEntry {
 
