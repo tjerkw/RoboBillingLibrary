@@ -6,7 +6,9 @@ Robo Billing Library - Beta
 Billing Should Be Simple
 ------------------------
 
-  `requestPurchase("com.example.item")`
+```java
+requestPurchase("com.example.item");
+```
 
 That's how simple it should be to use Android in-app billing. And with this library it is. 
 
@@ -21,7 +23,7 @@ Getting Started
 
 * Get acquainted with the [Android In-app Billing][4] documentation, and the [Amazon In-app Purhasing API][3]
 
-* Add *Robo Billing Library* to your project.
+* Follow the **Maven Setup** below
 
 * Follow the **Google Play** or **Amazon Appstore** setup below
 
@@ -31,44 +33,91 @@ Getting Started
 
 **That's it!**
 
+Maven Setup
+-----------
+
+The easiest way to use this library is with Maven. 
+
+I'm going to assume you're familiar with Maven, and are all set up with:
+
+* [Maven Android Plugin][12]
+* [Maven Android SDK Deployer][13]
+
+1. You will need to first download the [Amazon Mobile App SDK][14] and install it in your local Maven repo by running the following in the Terminal. The jar file is in the _InAppPurchasing/lib_ folder.
+
+  ```bash
+  mvn install:install-file -Dfile=<path-to-file> -DgroupId=com.amazon -DartifactId=in-app-purchasing -Dversion=1.0.3 -Dpackaging=jar
+  ```
+
+2. Next, run the command from the root folder of Robobilling Library to install Robobilling Library into your local Maven repo.
+
+  ```bash
+  mvn clean install
+  ```
+  
+3. Now that you've got the library installed, you can add it as a dependency in your pom.xml, and you're ready to rock:
+
+  ```xml
+  <dependency>
+       <groupId>com.ensolabs.robobilling</groupId>
+       <artifactId>RoboBillingLibrary</artifactId>
+       <type>apklib</type>
+       <version>1.0.0</version>
+  </dependency>
+  ```
+
+
+Other Setup
+------------
+None of the library dependencies are packaged with this library, so you'll have to dig through the pom.xml file to find the dependenies if you aren't using Maven.
+I'll add better instructions here later...
 
 Google Play Setup
 -----------------
 
 For **Google Play**, open the *AndroidManifest.xml* of your application and add the following inside the `<manifest>` element:
 
-`<uses-permission android:name="com.android.vending.BILLING" />`
+```xml
+<uses-permission android:name="com.android.vending.BILLING" />
+```
 
 And the following inside the `<application>` element:
 
-`<meta-data android:name="billingMode" android:value="google" />`
+```xml
+<meta-data android:name="billingMode" android:value="google" />
+```
 
 As well as the following service and receiver also inside the `<application>` element:
 
-    <service android:name="net.robotmedia.billing.BillingService" />
-    <receiver android:name="net.robotmedia.billing.BillingReceiver">
-        <intent-filter>
-            <action android:name="com.android.vending.billing.IN_APP_NOTIFY" />
-            <action android:name="com.android.vending.billing.RESPONSE_CODE" />
-            <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
-        </intent-filter>
-    </receiver>
+```xml
+<service android:name="net.robotmedia.billing.BillingService" />
+<receiver android:name="net.robotmedia.billing.BillingReceiver">
+    <intent-filter>
+        <action android:name="com.android.vending.billing.IN_APP_NOTIFY" />
+        <action android:name="com.android.vending.billing.RESPONSE_CODE" />
+        <action android:name="com.android.vending.billing.PURCHASE_STATE_CHANGED" />
+    </intent-filter>
+</receiver>
+```
 
 Amazon Appstore Setup
 ---------------------
 For **Amazon Appstore**, open the *AndroidManifest.xml* of your application and add the following inside the `<application>` element:
 
-`<meta-data android:name="billingMode" android:value="amazon" />`
+```xml
+<meta-data android:name="billingMode" android:value="amazon" />
+```
 
 As well as the following receiver also inside the `<application>` element:
    
-    <receiver android:name="com.amazon.inapp.purchasing.ResponseReceiver">
-        <intent-filter>
-            <action android:name="com.amazon.inapp.purchasing.NOTIFY"
-                android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY"/>
-        </intent-filter>
-    </receiver>
-    
+```xml
+<receiver android:name="com.amazon.inapp.purchasing.ResponseReceiver">
+    <intent-filter>
+        <action android:name="com.amazon.inapp.purchasing.NOTIFY"
+            android:permission="com.amazon.inapp.purchasing.Permission.NOTIFY"/>
+    </intent-filter>
+</receiver>
+```
 
 
 Usage
@@ -158,3 +207,6 @@ limitations under the License.
 [9]: https://github.com/christopherperry/RoboBillingLibrary/blob/master/RoboBillingLibrary/src/com/cperryinc/robobilling/RoboBillingController.java
 [10]: https://github.com/christopherperry/RoboBillingLibrary/tree/master/RoboBillingLibrary/src/com/cperryinc/robobilling/event
 [11]: https://github.com/christopherperry/RoboBillingLibrary/tree/master/DungeonsRedux
+[12]: http://code.google.com/p/maven-android-plugin/
+[13]: https://github.com/mosabua/maven-android-sdk-deployer
+[14]: https://developer.amazon.com/sdk/thank-you.html
