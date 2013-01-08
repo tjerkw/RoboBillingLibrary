@@ -289,7 +289,9 @@ public class BillingService extends RoboService implements ServiceConnection {
     private boolean runIfConnected(BillingRequest request) {
         if (mService == null) return false;
         try {
+            Logger.v(LOG_TAG, "Running request...");
             final long requestId = request.run(mService);
+            Logger.v(LOG_TAG, "Request ID " + requestId + " returned");
             ((GoogleBillingController) billingController).onRequestSent(requestId, request);
             return true;
         } catch (RemoteException e) {
